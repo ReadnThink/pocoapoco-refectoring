@@ -16,7 +16,7 @@ import teamproject.pocoapoco.service.LikeService;
 
 import javax.persistence.EntityNotFoundException;
 
-@Controller
+@Controller("/view/v1/crews/")
 @RequiredArgsConstructor
 public class CrewNewController {
     private final CrewService crewService;
@@ -25,14 +25,14 @@ public class CrewNewController {
 
 
     // 크루 게시글 등록
-    @PostMapping("/crews/")
+    @PostMapping()
     @ApiOperation(value = "크루 게시글 등록", notes = "")
     public String addCrew(@RequestBody CrewRequest crewRequest, Authentication authentication) {
         crewService.addCrew(crewRequest, authentication.getName());
         return "crew/write";
     }
     // 크루 게시물 상세 조회
-    @GetMapping("/crews/{crewId}")
+    @GetMapping("/{crewId}")
     public String detailCrew(@PathVariable Long crewId,Authentication authentication, Model model) {
         try {
             CrewDetailResponse details = crewService.detailCrew(crewId);
