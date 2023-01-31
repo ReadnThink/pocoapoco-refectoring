@@ -46,10 +46,9 @@ public class TestController {
     }
 
     @GetMapping("/users/profile/my")
-    public String getMyProfile(Model model, HttpServletRequest httpServletRequest){
-//        String username = (String) httpServletRequest.getAttribute("username");
+    public String getMyProfile(Model model, Authentication authentication){
 
-        UserProfileResponse userProfileResponse = userService.getUserInfoByUserName("string");
+        UserProfileResponse userProfileResponse = userService.getUserInfoByUserName(authentication.getName());
 
         model.addAttribute("userProfileResponse", userProfileResponse);
 

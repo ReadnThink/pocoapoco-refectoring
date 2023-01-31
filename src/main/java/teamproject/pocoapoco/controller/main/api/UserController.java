@@ -3,6 +3,7 @@ package teamproject.pocoapoco.controller.main.api;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,7 @@ import teamproject.pocoapoco.service.UserService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
-@Api(value = "회원가입, 로그인, 프로필 조회 등 사용자와 관련된 기능이 있는 controller 입니다.")
+@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -57,6 +58,7 @@ public class UserController {
 
 
         UserProfileResponse userProfileResponse = userService.updateUserInfoByUserName(authentication.getName(), userProfileRequest);
+        log.info(userProfileResponse.getUserName(), userProfileRequest.getAddress());
 
         return Response.success(userProfileResponse);
 

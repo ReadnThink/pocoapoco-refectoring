@@ -201,37 +201,65 @@
     //     });
     // }
 
+    function getCookie(cName) {
+        cName = cName + '=';
+        var cookieData = document.cookie;
+        var start = cookieData.indexOf(cName);
+        var cValue = '';
+        if(start != -1){
+            start += cName.length;
+            var end = cookieData.indexOf(';', start);
+            if(end == -1)end = cookieData.length;
+            cValue = cookieData.substring(start, end);
+        }
+        return unescape(cValue);
+    }
+
+    function isBoolean(){
+        var likeSoccer = document.getElementById("likeSoccer").checked;
+        var likeJogging = document.getElementById("likeJogging").checked;
+        var likeTennis = document.getElementById("likeTennis").checked;
+        console.log("likeSoccer: %s", likeSoccer);
+        console.log("likeJogging: %s", likeJogging);
+        console.log("likeTennis: %s", likeTennis);
+    }
+
 
     async function updateProfile() {
-        var url = "/api/v1/users/profile/" + document.getElementById("userName");
-        let response = await fetch(url, {
+        var reviseUrl = "/api/v1/users/profile/revise";
+        // var resultUrl = "/api/v1/users/profile/" + document.getElementById("userName").value;
+
+        let response = await fetch(reviseUrl, {
             method: "PUT",
             headers: {
+                "Accept":"application/json",
                 "Content-Type": "application/json",
-                "Authorization": localStorage.getItem('jwt'),
-                "Authentication": localStorage.getItem('jwt')
+                "Authorization": getCookie('jwt'),
+                "Authentication": getCookie('jwt')
             },
             body: JSON.stringify({
 
-                userName: document.getElementById("userName"),
-                password: document.getElementById("password1"),
-                passwordConfirm: document.getElementById("password2"),
-                address: document.getElementById("address"),
-                likeSoccer: document.getElementById("likeSoccer"),
-                likeJogging: document.getElementById("likeJogging"),
-                likeTennis: document.getElementById("likeTennis"),
+                userName: document.getElementById("userName").value,
+                password: document.getElementById("password1").value,
+                passwordConfirm: document.getElementById("password2").value,
+                address: document.getElementById("address").value,
+                likeSoccer: document.getElementById("likeSoccer").checked,
+                likeJogging: document.getElementById("likeJogging").checked,
+                likeTennis: document.getElementById("likeTennis").checked,
             })
         });
+
         if(response.ok){
-            let json = await response.json();
+
 
             console.log("프로필 수정 완료");
-            alert("회원정보 수정이 완료되었습니다.");
+            alert("회원정보 수정이 완료되었습니다."); // status ok가 떴는데 왜 controller로 넘어가지 않을까?
+
 
         }else{
 
             console.log("프로필 수정 실패");
-            alert("회원 정보 수정에 실패했습니다.");
+            alert(response.body);
         }
     }
 

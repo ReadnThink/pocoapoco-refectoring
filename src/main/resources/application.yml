@@ -3,13 +3,18 @@ server:
     encoding:
       force-response: true
 
+
 spring:
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: update
     show-sql: true
     format_sql: true
     use_sql_comments: true
+    properties:
+      hibernate:
+        format_sql: true
   redis:
     host: localhost
     port: 6379
@@ -38,3 +43,16 @@ spring:
 jwt:
   token:
     secret: "secreteKey"
+
+
+#cloud:
+#  aws:
+#    credentials:
+#      access-key: "aws-access-key"
+#      secret-key: "aws-secret-key"
+#
+#    region:
+#      static: "aws-region"
+#
+#    stack:
+#      auto: false

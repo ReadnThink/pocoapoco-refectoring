@@ -11,6 +11,7 @@ import teamproject.pocoapoco.domain.dto.user.UserLoginRequest;
 import teamproject.pocoapoco.domain.dto.user.UserLoginResponse;
 import teamproject.pocoapoco.service.UserService;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 @Controller
@@ -27,9 +28,14 @@ public class ViewController {
         return "redirect:/view/v1/start";
     }
     @PostMapping("/view/v1/signin")
-    public String login(UserLoginRequest userLoginRequest){
+    public String login(UserLoginRequest userLoginRequest, HttpServletResponse httpServletResponse){
 
-        userService.login(userLoginRequest);
+        UserLoginResponse userLoginResponse = userService.login(userLoginRequest);
+
+        Cookie cookie = new Cookie("jwt", "Bearer+" + userLoginResponse.getAccessToken());
+        httpServletResponse.addCookie(cookie);
+
+
         return "redirect:/view/v1/crews";
     }
     @GetMapping("/view/v1/start")

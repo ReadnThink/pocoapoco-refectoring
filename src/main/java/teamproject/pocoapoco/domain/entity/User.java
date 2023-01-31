@@ -1,6 +1,7 @@
 package teamproject.pocoapoco.domain.entity;
 
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -77,6 +78,18 @@ public class User implements UserDetails {
 
     public static User toEntity(String userId, String userName, String address, String password, Boolean likeSoccer, Boolean likeJogging, Boolean likeTennis){
         return User.builder()
+                .userId(userId)
+                .userName(userName)
+                .address(address)
+                .role(UserRole.ROLE_USER)
+                .sport(Sport.setSport(likeSoccer, likeJogging, likeTennis))
+                .password(password)
+                .build();
+    }
+
+    public static User toEntityForRevise(Long id, String userId, String userName, String address, String password, Boolean likeSoccer, Boolean likeJogging, Boolean likeTennis){
+        return User.builder()
+                .id(id)
                 .userId(userId)
                 .userName(userName)
                 .address(address)

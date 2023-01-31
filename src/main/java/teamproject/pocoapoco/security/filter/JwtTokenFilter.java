@@ -11,12 +11,12 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import teamproject.pocoapoco.domain.dto.error.ErrorResponse;
 import teamproject.pocoapoco.domain.dto.response.Response;
-import teamproject.pocoapoco.exception.AppException;
 import teamproject.pocoapoco.exception.ErrorCode;
 import teamproject.pocoapoco.security.provider.JwtProvider;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -28,7 +28,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
      * request 에서 전달받은 Jwt 토큰을 확인
      */
 
-    private final String BEARER = "Bearer ";
+    private final String BEARER = "Bearer+";
 
     private final JwtProvider jwtProvider;
     private final RedisTemplate redisTemplate;
@@ -37,21 +37,51 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String token = null;
+
+        if(request.getHeader(HttpHeaders.AUTHORIZATION)== null){
+            Cookie[] cookies = request.getCookies();
+
+
+            if(cookies != null){
+                for (Cookie cookie: cookies){
+                    if(cookie.getName().equals("jwt")){
+                        token = cookie.getValue();
+                        log.info("쿠키 가져옴");
+                    }
+                }
+            }
+        } else{
+            token = request.getHeader(HttpHeaders.AUTHORIZATION);
+        }
+
+
+
+
         request.setAttribute("existsToken", true); // 토큰 존재 여부 초기화
         if (isEmptyToken(token)) request.setAttribute("existsToken", false); // 토큰이 없는 경우 false로 변경
+
 
         if (token == null || !token.startsWith(BEARER)) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        CustomServletRequestWrapper requestWrapper = new CustomServletRequestWrapper(request);
+        requestWrapper.addHeader("Authorization", token);
+        requestWrapper.addHeader("Authentication", token);
+
+
         token = parseBearer(token);
+        log.info("token: {}", token);
+        log.info("is token validate : {}", jwtProvider.validateToken(token));
+        // 토큰이 잘 넘어가는 것은 확인함
 
         if (jwtProvider.validateToken(token)) {
             // Redis 에 해당 accessToken logout 여부 확인
             String isLogout = (String)redisTemplate.opsForValue().get(token);
             log.info("isLogout?:{}",isLogout);
+
 
             if (ObjectUtils.isEmpty(isLogout)) {
                 // 토큰이 유효할 경우 토큰에서 Authentication 객체를 가지고 와서 SecurityContext 에 저장
@@ -64,8 +94,13 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 return;
             }
         }
+        Authentication authentication = jwtProvider.getAuthentication(token);
+        log.info(String.valueOf(SecurityContextHolder.getContext().getAuthentication().isAuthenticated()));
+        log.info(String.valueOf(authentication.isAuthenticated()));
 
-        filterChain.doFilter(request, response);
+
+
+        filterChain.doFilter(requestWrapper, response);
     }
 
     private boolean isEmptyToken(String token) {
@@ -91,4 +126,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         // 한글 출력을 위해 getWriter()
         response.getWriter().write(objectMapper.writeValueAsString(resultResponse));
     }
+
+
 }
