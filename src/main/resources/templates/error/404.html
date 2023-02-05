@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/fragment :: head"></head>
+<body>
+<section class="jumbotron text-center">
+    <div class="container">
+        <p class="lead text-muted">
+            잘못된 요청입니다.<br/>
+        </p>
+        <p>
+            <a th:href="@{'/view/v1/crews'}" class="btn btn-primary my-2">첫 페이지로 이동</a>
+        </p>
+    </div>
+</section>
+</body>
+</html>
