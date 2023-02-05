@@ -128,11 +128,7 @@
                                 <small class="text-muted" th:text="${crew.crewLimit} + 명">인원</small>
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-secondary"><a
-                                            th:href="@{/view/v1/crews/{crewId}(crewId = ${crew.id},
-                                            crewNowPage=${nowPage},
-                                            strict=${sportRequest.getStrict()},
-                                            sportsList=${sportRequest.getSportsList()}
-                                            )}">상세보기</a>
+                                            th:href="@{/view/v1/crews/{crewId}(crewId = ${crew.id})}">상세보기</a>
                                     </button>
                                     <!--                        <button type="button" class="btn btn-danger" id="crew-btn-detail"><a th:href="@{/crews/{crewId}(crewId = )}">출력</a></button>-->
 
