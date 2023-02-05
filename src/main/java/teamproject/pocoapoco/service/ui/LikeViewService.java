@@ -1,8 +1,10 @@
-package teamproject.pocoapoco.service;
+package teamproject.pocoapoco.service.ui;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import teamproject.pocoapoco.domain.dto.like.LikeResponse;
+import org.springframework.transaction.annotation.Transactional;
+import teamproject.pocoapoco.domain.dto.like.LikeViewResponse;
 import teamproject.pocoapoco.domain.entity.Alarm;
 import teamproject.pocoapoco.domain.entity.Crew;
 import teamproject.pocoapoco.domain.entity.Like;
@@ -15,35 +17,40 @@ import teamproject.pocoapoco.repository.CrewRepository;
 import teamproject.pocoapoco.repository.LikeRepository;
 import teamproject.pocoapoco.repository.UserRepository;
 
+import java.util.List;
+
 @Service
+@Slf4j
 @RequiredArgsConstructor
-public class LikeService {
+public class LikeViewService {
     private final LikeRepository likeRepository;
     private final CrewRepository crewRepository;
     private final UserRepository userRepository;
     private final AlarmRepository alarmRepository;
-
-    public LikeResponse goodCrew(Long crewId, String userName){
+    // view 페이지 like 기능
+    public int getLikeCrew(Long crewId){
+        Crew crew = crewRepository.findById(crewId).orElseThrow(()->new AppException(ErrorCode.CREW_NOT_FOUND,ErrorCode.CREW_NOT_FOUND.getMessage()));
+        return crew.getLikes().size();
+    }
+    @Transactional
+    public LikeViewResponse pressLike(Long crewId, String userName){
         User user = userRepository.findByUserName(userName).orElseThrow(()->new AppException(ErrorCode.USERID_NOT_FOUND,ErrorCode.USERID_NOT_FOUND.getMessage()));
         Crew crew = crewRepository.findById(crewId).orElseThrow(()->new AppException(ErrorCode.CREW_NOT_FOUND,ErrorCode.CREW_NOT_FOUND.getMessage()));
-        LikeResponse goodResponse = new LikeResponse();
+        LikeViewResponse likeViewResponse = new LikeViewResponse();
         if(user.getLikes().stream().anyMatch(like -> like.getCrew().equals(crew))){
             likeRepository.deleteByUserAndCrew(user,crew);
-            goodResponse.setMessage("좋아요 취소");
+            likeViewResponse.setLikeCheck(0);
+
         } else {
             likeRepository.save(Like.builder().crew(crew).user(user).build());
             alarmRepository.save(Alarm.toEntity(user, crew, AlarmType.LIKE_CREW, AlarmType.LIKE_CREW.getText()));
-
-            goodResponse.setMessage("좋아요 성공");
+            likeViewResponse.setLikeCheck(1);
         }
-        return goodResponse;
-    }
 
-    public LikeResponse getLike(Long crewId){
-        Crew crew = crewRepository.findById(crewId).orElseThrow(()->new AppException(ErrorCode.CREW_NOT_FOUND,ErrorCode.CREW_NOT_FOUND.getMessage()));
-        LikeResponse goodResponse = new LikeResponse();
-        goodResponse.setMessage("메세지 개수는 총 : "+ crew.getLikes().size());
-        return goodResponse;
-    }
+        List<Like> num = likeRepository.findAll();
 
+        likeViewResponse.setCount(num.size());
+        likeViewResponse.setUserName(user.getUsername());
+        return likeViewResponse;
+    }
 }
