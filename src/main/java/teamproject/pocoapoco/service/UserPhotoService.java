@@ -36,9 +36,9 @@ public class UserPhotoService {
 
 
     @Transactional
-    public UserProfileResponse editUserImage(String userName, String imagePath) {
+    public UserProfileResponse editUserImage(String userId, String imagePath) {
 
-        Optional<User> selectedUserOptional = userRepository.findByUserName(userName);
+        Optional<User> selectedUserOptional = userRepository.findByUserId(userId);
 
         if(selectedUserOptional.isEmpty()){
             throw new AppException(ErrorCode.USERID_NOT_FOUND, ErrorCode.USERID_NOT_FOUND.getMessage());
@@ -46,7 +46,7 @@ public class UserPhotoService {
 
         User selectedUser = selectedUserOptional.get();
 
-        User revisedUser = User.toEntityWithImage(selectedUser.getId(), selectedUser.getUserId(), selectedUser.getUsername(),
+        User revisedUser = User.toEntityWithImage(selectedUser.getId(), selectedUser.getUserId(), selectedUser.getUserName(),
                 selectedUser.getAddress(), selectedUser.getPassword(), selectedUser.getSport().isSoccer(),
                 selectedUser.getSport().isJogging(), selectedUser.getSport().isTennis(), imagePath);
 
