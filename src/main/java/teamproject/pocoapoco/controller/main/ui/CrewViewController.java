@@ -11,13 +11,22 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.CollectionUtils;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-import teamproject.pocoapoco.domain.dto.crew.*;
-import teamproject.pocoapoco.domain.dto.user.UserProfileResponse;
-import teamproject.pocoapoco.enums.SportEnum;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import teamproject.pocoapoco.domain.dto.crew.CrewDetailResponse;
+import teamproject.pocoapoco.domain.dto.crew.CrewRequest;
+import teamproject.pocoapoco.domain.dto.crew.CrewResponse;
+import teamproject.pocoapoco.domain.dto.crew.CrewStrictRequest;
+import teamproject.pocoapoco.domain.dto.like.LikeViewResponse;
+import teamproject.pocoapoco.domain.entity.Crew;
+import teamproject.pocoapoco.domain.entity.User;
+import teamproject.pocoapoco.repository.CrewRepository;
+import teamproject.pocoapoco.repository.UserRepository;
 import teamproject.pocoapoco.service.CrewService;
-import teamproject.pocoapoco.service.UserService;
+import teamproject.pocoapoco.service.ui.LikeViewService;
+
+import javax.persistence.EntityNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +40,85 @@ import java.util.stream.Collectors;
 public class CrewViewController {
 
     private final CrewService crewService;
+    private final CrewRepository crewRepository;
+    private final UserRepository userRepository;
+    private final LikeViewService likeViewService;
+
+
+    // 크루 게시글 작성
+    @PostMapping
+    @ApiOperation(value = "크루 게시글 등록", notes = "")
+    public String addCrew(@RequestBody CrewRequest crewRequest, Authentication authentication) {
+        crewService.addCrew(crewRequest, authentication.getName());
+        return "crew/write";
+    }
+    // 크루 게시물 상세 페이지
+    @GetMapping("/{crewId}")
+    public String detailCrew(@PathVariable Long crewId, Model model, Authentication authentication) {
+        try {
+            CrewDetailResponse details = crewService.detailCrew(crewId);
+            int count = likeViewService.getLikeCrew(crewId);
+
+            model.addAttribute("details", details);
+            // 좋아요 개수 출력
+            model.addAttribute("likeCnt",count);
+        } catch (EntityNotFoundException e) {
+            return "redirect:/index";
+        }
+        return "crew/read-crew";
+    }
+
+    // 크루 게시글 수정
+    @PutMapping("/{crewId}")
+    public String modifyCrew(@PathVariable Long crewId, @ModelAttribute CrewRequest crewRequest, Authentication authentication, Errors errors, RedirectAttributes attributes) {
+        if (errors.hasErrors()) {
+            return "crew/update-crew";
+        }
+        CrewResponse crewResponse = crewService.modifyCrew(crewId, crewRequest, authentication.getName());
+        attributes.addFlashAttribute("message", "게시글을 수정했습니다.");
+
+        return "redirect:" + "/view/v1/crews/update/" + crewResponse.getCrewId();
+    }
+    // 크루 게시글 수정화면
+    @GetMapping("/update/{crewId}")
+    public String updateCrew (@PathVariable Long crewId, Model model, Authentication authentication) {
+        Crew crew  = crewRepository.findById(crewId).orElse(null);
+        if(crew == null || !crew.getUser().getUsername().equals(authentication.getName())) {
+            return "error/404";
+        }
+        CrewRequest crewRequest = new CrewRequest();
+        crewRequest.setTitle(crew.getTitle());
+        crewRequest.setContent(crew.getContent());
+
+        model.addAttribute(crewRequest);
+        model.addAttribute("crewId", crew.getId());
+
+        return "crew/update-crew";
+    }
+
+    // 크루 게시글 삭제
+    @DeleteMapping("/{crewId}")
+    public String deleteCrew(@PathVariable Long crewId,Model model ,Authentication authentication) {
+        Crew crew = crewRepository.findById(crewId).orElse(null);
+        User user = userRepository.findById(crew.getUser().getId()).orElse(null);
+        log.info("삭제 조회 중");
+
+        if(crew == null || user == null) {
+            return "error/404";
+        }
+        CrewResponse crewResponse = crewService.deleteCrew(crewId, authentication.getName());
+        model.addAttribute("response",crewResponse);
+        return "redirect:/";
+    }
+
+    // 좋아요 누르기
+    @PostMapping("/{crewId}/like")
+    public ResponseEntity likeCrew(@PathVariable Long crewId, Authentication authentication){
+        LikeViewResponse likeViewResponse =  likeViewService.pressLike(crewId,authentication.getName());
+        return new ResponseEntity<>(likeViewResponse, HttpStatus.OK);
+    }
+
+
 
     private final UserService userService;
 

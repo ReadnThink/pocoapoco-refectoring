@@ -41,6 +41,7 @@ public class JwtProvider {
     public String generateAccessToken(User user) {
         Claims claims = Jwts.claims();
         claims.put(ID_KEY, user.getId());
+        claims.put(USERID_KEY, user.getUserId());
         claims.put(USERNAME_KEY, user.getUsername());
         claims.put(ROLE_KEY, user.getRole().name());
         claims.put(USERID_KEY, user.getUserId());
@@ -54,7 +55,7 @@ public class JwtProvider {
     }
 
     public String generateRefreshToken(User user) {
-        Claims claims = Jwts.claims().setSubject(user.getUsername());
+        Claims claims = Jwts.claims().setSubject(user.getUserId());
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -88,11 +89,13 @@ public class JwtProvider {
         // token 복호화
         Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(accessToken).getBody();
         Long id = Long.parseLong(claims.get(ID_KEY).toString());
+        String userId = claims.get(USERID_KEY).toString();
         String username = claims.get(USERNAME_KEY).toString();
         String roleName = claims.get(ROLE_KEY).toString();
 
         User user = User.builder()
                 .id(id)
+                .userId(userId)
                 .userName(username)
                 .role(UserRole.valueOf(roleName))
                 .build();

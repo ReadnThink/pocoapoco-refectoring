@@ -1,11 +1,7 @@
 package teamproject.pocoapoco.domain.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Where;
-import teamproject.pocoapoco.domain.dto.chat.ChatRoomDTO;
 import teamproject.pocoapoco.domain.dto.crew.CrewRequest;
 import teamproject.pocoapoco.enums.InterestSport;
 import teamproject.pocoapoco.enums.SportEnum;
@@ -27,12 +23,13 @@ public class Crew extends BaseEntity{
     private Long id;
 
     private String strict;
+    private String roadName;
     private String title;
     private String content;
     private Integer crewLimit;
-    private Integer chatroomId;
 
-    // participant_id 추후 추가예정
+    private String datepick;
+    private String timepick;
 
     @OneToOne
     @JoinColumn(name="room_id")
