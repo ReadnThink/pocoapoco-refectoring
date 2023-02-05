@@ -35,12 +35,12 @@ public class ProfileController {
     @PostMapping("/users/profile/edit")
     public String editUser(@ModelAttribute UserProfileRequest userProfileRequest, Model model, Authentication authentication){
 
-        UserProfileResponse userProfileResponse = userService.updateUserInfoByUserName(authentication.getName(), userProfileRequest);
+        UserProfileResponse userProfileResponse = userService.updateUserInfoByUserId(authentication.getName(), userProfileRequest);
 
         model.addAttribute("userProfileResponse", userProfileResponse);
 
 
-        return "profile/get-my-profile";
+        return "redirect:/view/v1/users/profile/my";
     }
 
     @GetMapping("/users/profile/edit")
@@ -48,10 +48,13 @@ public class ProfileController {
 
         String userName = authentication.getName();
 
-        UserProfileResponse userProfileResponse = userService.getUserInfoByUserName(userName);
+        UserProfileResponse userProfileResponse = userService.getUserInfoByUserId(userName);
+
+        String userProfileImagePath = userService.getProfilePathByUserName(userName);
 
         model.addAttribute("userProfileResponse", userProfileResponse);
         model.addAttribute("userProfileRequest", new UserProfileRequest());
+        model.addAttribute("userProfileImagePath", userProfileImagePath);
 
 
         return "profile/edit";
@@ -62,9 +65,13 @@ public class ProfileController {
 
         String userName = authentication.getName();
 
-        UserProfileResponse userProfileResponse = userService.getUserInfoByUserName(userName);
+        String userProfileImagePath = userService.getProfilePathByUserName(userName);
+
+        UserProfileResponse userProfileResponse = userService.getUserInfoByUserId(userName);
 
         model.addAttribute("userProfileResponse", userProfileResponse);
+
+        model.addAttribute("userProfileImagePath", userProfileImagePath);
 
 
         return "profile/get-my-profile";
@@ -72,11 +79,11 @@ public class ProfileController {
 
 
 
-    @GetMapping("/users/profile/{userName}")
-    public String getUserProfile(@PathVariable String userName, Model model, HttpServletResponse response) throws IOException {
+    @GetMapping("/users/profile/{userId}")
+    public String getUserProfile(@PathVariable String userId, Model model, HttpServletResponse response) throws IOException {
 
         try{
-            UserProfileResponse userProfileResponse = userService.getUserInfoByUserName(userName);
+            UserProfileResponse userProfileResponse = userService.getUserInfoByUserId(userId);
             model.addAttribute("userProfileResponse", userProfileResponse);
             return "profile/get";
         } catch (AppException e){
@@ -118,6 +125,10 @@ public class ProfileController {
 
         return "/profile/upload-form";
     }
+
+
+
+
 
 
 

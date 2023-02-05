@@ -60,7 +60,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userName;
+        return userId;
     }
 
     @Override
@@ -94,7 +94,7 @@ public class User implements UserDetails {
                 .build();
     }
 
-    public static User toRevisedEntity(Long id, String userId, String revisedUserName, String revisedAddress, String encodedPassword, Boolean revisedLikeSoccer, Boolean revisedLikeJogging, Boolean revisedLikeTennis) {
+    public static User toRevisedEntity(Long id, String userId, String revisedUserName, String revisedAddress, String encodedPassword, Boolean revisedLikeSoccer, Boolean revisedLikeJogging, Boolean revisedLikeTennis, String imagePath) {
         return User.builder()
                 .id(id)
                 .userId(userId)
@@ -103,6 +103,7 @@ public class User implements UserDetails {
                 .role(UserRole.ROLE_USER)
                 .sport(Sport.setSport(revisedLikeSoccer, revisedLikeJogging, revisedLikeTennis))
                 .password(encodedPassword)
+                .imagePath(imagePath)
                 .build();
     }
 
@@ -117,5 +118,10 @@ public class User implements UserDetails {
                 .sport(Sport.setSport(revisedLikeSoccer, revisedLikeJogging, revisedLikeTennis))
                 .password(encodedPassword)
                 .build();
+    }
+
+    public String getUserName() {
+        return userName;
+
     }
 }

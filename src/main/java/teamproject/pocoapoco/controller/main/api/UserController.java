@@ -56,7 +56,7 @@ public class UserController {
     public Response userInfoModify(Authentication authentication, @RequestBody UserProfileRequest userProfileRequest){
 
 
-        UserProfileResponse userProfileResponse = userService.updateUserInfoByUserName(authentication.getName(), userProfileRequest);
+        UserProfileResponse userProfileResponse = userService.updateUserInfoByUserId(authentication.getName(), userProfileRequest);
 
         return Response.success(userProfileResponse);
 
@@ -69,7 +69,7 @@ public class UserController {
     public Response userMyInfoList(Authentication authentication){
 
 
-        UserProfileResponse userProfileResponse = userService.getUserInfoByUserName(authentication.getName());
+        UserProfileResponse userProfileResponse = userService.getUserInfoByUserId(authentication.getName());
 
 
         return Response.success(userProfileResponse);
@@ -82,7 +82,7 @@ public class UserController {
     public Response userInfoList(@PathVariable String userName){
 
 
-        UserProfileResponse userProfileResponse = userService.getUserInfoByUserName(userName);
+        UserProfileResponse userProfileResponse = userService.getUserInfoByUserId(userName);
 
 
 
