@@ -1,6 +1,7 @@
 package teamproject.pocoapoco.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -174,6 +176,9 @@ public class UserService {
     @Transactional(rollbackOn = AppException.class)
     public UserProfileResponse updateUserInfoByUserName(String userName, UserProfileRequest userProfileRequest) {
 
+//        log.info("수정된 userName: {}", userProfileRequest.getUserName());
+//        log.info("바뀐 password:{}", userProfileRequest.getPassword());
+
         // 비밀번호 확인 로직 따로 빼야할 필요 있음
         if (!userProfileRequest.getPassword().equals(userProfileRequest.getPasswordConfirm())){
             throw new AppException(ErrorCode.NOT_MATCH_PASSWORD, ErrorCode.NOT_MATCH_PASSWORD.getMessage());
@@ -189,9 +194,9 @@ public class UserService {
         User beforeMyUser = myUserOptional.get();
         // request에서 수정된 정보만 반영하기
 
-        String revisedUserName = (userProfileRequest.getUserName().equals(null))? beforeMyUser.getUsername(): userProfileRequest.getUserName();
-        String revisedAddress = (userProfileRequest.getAddress().equals(null))? beforeMyUser.getAddress(): userProfileRequest.getAddress();
-        String revisedPassword = (userProfileRequest.getPassword().equals(null))? beforeMyUser.getPassword(): userProfileRequest.getPassword();
+//        String revisedUserName = (userProfileRequest.getUserName().isBlank())? beforeMyUser.getUsername(): userProfileRequest.getUserName();
+        String revisedAddress = (userProfileRequest.getAddress().isBlank())? beforeMyUser.getAddress(): userProfileRequest.getAddress();
+        String revisedPassword = (userProfileRequest.getPassword().isBlank())? beforeMyUser.getPassword(): userProfileRequest.getPassword();
         Boolean revisedLikeSoccer = (userProfileRequest.getLikeSoccer().equals(beforeMyUser.getSport().isSoccer()))? beforeMyUser.getSport().isSoccer(): userProfileRequest.getLikeSoccer();
         Boolean revisedLikeJogging = (userProfileRequest.getLikeJogging().equals(beforeMyUser.getSport().isJogging()))? beforeMyUser.getSport().isJogging(): userProfileRequest.getLikeJogging();
         Boolean revisedLikeTennis = (userProfileRequest.getLikeTennis().equals(beforeMyUser.getSport().isTennis()))? beforeMyUser.getSport().isTennis(): userProfileRequest.getLikeTennis();
@@ -199,9 +204,15 @@ public class UserService {
         String encodedPassword = encrypterConfig.encoder().encode(revisedPassword);
 
 
-        User revisedMyUser = User.toRevisedEntity(beforeMyUser.getId(), beforeMyUser.getUserId(), revisedUserName, revisedAddress, encodedPassword, revisedLikeSoccer, revisedLikeJogging, revisedLikeTennis);
 
+        User revisedMyUser = User.toRevisedEntity(beforeMyUser.getId(), beforeMyUser.getUserId(), beforeMyUser.getUsername(), revisedAddress, encodedPassword, revisedLikeSoccer, revisedLikeJogging, revisedLikeTennis, beforeMyUser.getImagePath());
         userRepository.save(revisedMyUser);
+
+
+        log.info("변경 후 userName: {}", revisedMyUser.getUsername());
+        log.info("변경 후 password:{}", revisedMyUser.getPassword());
+
+
 
         return UserProfileResponse.fromEntity(revisedMyUser);
 
@@ -217,6 +228,20 @@ public class UserService {
         User selectedUser = selectedUserOptional.get();
 
         return UserProfileResponse.fromEntity(selectedUser);
+
+    }
+
+    public String getProfilePathByUserName(String userName) {
+
+        Optional<User> selectedUserOptional = userRepository.findByUserName(userName);
+
+        if(selectedUserOptional.isEmpty()){
+            throw new AppException(ErrorCode.USERID_NOT_FOUND, ErrorCode.USERID_NOT_FOUND.getMessage());
+        }
+
+        User selectedUser = selectedUserOptional.get();
+
+        return selectedUser.getImagePath();
 
     }
 

@@ -9,7 +9,6 @@ import lombok.*;
 @Setter
 public class UserProfileRequest {
 
-    private String userName;
     private String password;
     private String passwordConfirm;
     private String address;

@@ -94,10 +94,11 @@ public class User implements UserDetails {
                 .build();
     }
 
-    public static User toRevisedEntity(Long id, String userId, String revisedUserName, String revisedAddress, String encodedPassword, Boolean revisedLikeSoccer, Boolean revisedLikeJogging, Boolean revisedLikeTennis) {
+    public static User toRevisedEntity(Long id, String userId, String revisedUserName, String revisedAddress, String encodedPassword, Boolean revisedLikeSoccer, Boolean revisedLikeJogging, Boolean revisedLikeTennis, String imagePath) {
         return User.builder()
                 .id(id)
                 .userId(userId)
+                .imagePath(imagePath)
                 .userName(revisedUserName)
                 .address(revisedAddress)
                 .role(UserRole.ROLE_USER)

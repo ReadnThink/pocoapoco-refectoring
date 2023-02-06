@@ -35,12 +35,14 @@ public class ProfileController {
     @PostMapping("/users/profile/edit")
     public String editUser(@ModelAttribute UserProfileRequest userProfileRequest, Model model, Authentication authentication){
 
+//        log.info(userProfileRequest.getUserName());
+
         UserProfileResponse userProfileResponse = userService.updateUserInfoByUserName(authentication.getName(), userProfileRequest);
 
         model.addAttribute("userProfileResponse", userProfileResponse);
 
 
-        return "profile/get-my-profile";
+        return "redirect:/view/v1/users/profile/my";
     }
 
     @GetMapping("/users/profile/edit")
@@ -50,8 +52,11 @@ public class ProfileController {
 
         UserProfileResponse userProfileResponse = userService.getUserInfoByUserName(userName);
 
+        String userProfileImagePath = userService.getProfilePathByUserName(userName);
+
         model.addAttribute("userProfileResponse", userProfileResponse);
         model.addAttribute("userProfileRequest", new UserProfileRequest());
+        model.addAttribute("userProfileImagePath", userProfileImagePath);
 
 
         return "profile/edit";
@@ -62,9 +67,13 @@ public class ProfileController {
 
         String userName = authentication.getName();
 
+        String userProfileImagePath = userService.getProfilePathByUserName(userName);
+
         UserProfileResponse userProfileResponse = userService.getUserInfoByUserName(userName);
 
         model.addAttribute("userProfileResponse", userProfileResponse);
+
+        model.addAttribute("userProfileImagePath", userProfileImagePath);
 
 
         return "profile/get-my-profile";
@@ -118,6 +127,10 @@ public class ProfileController {
 
         return "/profile/upload-form";
     }
+
+
+
+
 
 
 
