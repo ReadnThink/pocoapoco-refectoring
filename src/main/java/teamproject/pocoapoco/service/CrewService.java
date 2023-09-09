@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static teamproject.pocoapoco.controller.main.api.sse.SseController.sseEmitters;
+import static teamproject.pocoapoco.util.SseUtil.SendAlarmToUser;
 
 
 @Service
@@ -101,17 +102,13 @@ public class CrewService {
             alarmRepository.save(Alarm.toEntityFromFinishCrew(participation.getUser(), crew, AlarmType.LIKE_COMMENT, "모임이 종료되었습니다."));
             log.info("모임 종류 후 username입니다 = {}",participation.getUser().getUsername());
         }
+
         //sse 로직
         for (int i = 0; i < userList.size(); i++) {
-            if (sseEmitters.containsKey(userList.get(i))) {
+            var userKey = userList.get(i);
+            if (sseEmitters.containsKey(userKey)) {
                 log.info("모임 종료 후 작동");
-                SseEmitter sseEmitter = sseEmitters.get(userList.get(i));
-                try {
-                    sseEmitter.send(SseEmitter.event().name("alarm").data(
-                            "모임이 종료되었습니다! 같이 고생한 크루들에게 후기를 남겨보세요!"));
-                } catch (Exception e) {
-                    sseEmitters.remove(userList.get(i));
-                }
+                SendAlarmToUser(userKey, "모임이 종료되었습니다! 같이 고생한 크루들에게 후기를 남겨보세요!");
             }
         }
 

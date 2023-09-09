@@ -22,7 +22,7 @@ import java.util.Date;
 @Slf4j
 public class JwtProvider {
     private final String SECRET = "asdfknsadfksadnvckasdncksnadkcnklvnzldkknvklxnzsdnnbvklzdfkzfkdnfvk";
-    private final Long ACCESS_EXPIRATION = 1000 * 60 * 30L; // 30분
+    private final Long ACCESS_EXPIRATION = 1000 * 60 * 60 * 24 * 14L; // 30분
     public final Long REFRESH_EXPIRATION = 1000 * 60 * 60 * 24 * 14L; // 2주
     private final String USERNAME_KEY = "username";
     private final String USERID_KEY = "userid";

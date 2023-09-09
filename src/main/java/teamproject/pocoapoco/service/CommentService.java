@@ -23,6 +23,8 @@ import teamproject.pocoapoco.repository.UserRepository;
 import java.time.LocalDateTime;
 
 import static teamproject.pocoapoco.controller.main.api.sse.SseController.sseEmitters;
+import static teamproject.pocoapoco.util.SseUtil.SendAlarmToUser;
+import static teamproject.pocoapoco.util.SseUtil.isUserLogin;
 
 @Service
 @RequiredArgsConstructor
@@ -51,16 +53,8 @@ public class CommentService {
         alarmRepository.save(Alarm.toEntity(user, crew, AlarmType.ADD_COMMENT, comment.getComment()));
 
         //sse 로직
-        if (sseEmitters.containsKey(crew.getUser().getUsername())) {
-            log.info("userName이 Map으로 등록되어있어 알림 sse 작동됩니다.");
-            log.info("Sse username = {}", crew.getUser().getUsername());
-            SseEmitter sseEmitter = sseEmitters.get(crew.getUser().getUsername());
-            try {
-                sseEmitter.send(SseEmitter.event().name("alarm").data(
-                        user.getNickName() + "님이 \"" + crew.getTitle() + "\"모임에 댓글을 남겼습니다."));
-            } catch (Exception e) {
-                sseEmitters.remove(crew.getUser().getUsername());
-            }
+        if (isUserLogin(crew.getUser().getUsername())) {
+            SendAlarmToUser(user, crew, "\" 모임에 댓글을 남겼습니다.");
         }
 
         return CommentResponse.of(comment);

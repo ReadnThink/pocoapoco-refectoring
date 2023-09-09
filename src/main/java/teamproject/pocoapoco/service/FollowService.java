@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static teamproject.pocoapoco.controller.main.api.sse.SseController.sseEmitters;
+import static teamproject.pocoapoco.util.SseUtil.SendAlarmToUser;
 
 @Service
 @RequiredArgsConstructor
@@ -59,15 +60,11 @@ public class FollowService {
             followRepository.save(new Follow(followingUser,user));
             //알림 저장
             alarmRepository.save(Alarm.toEntityFromFollow(user, followingUser, AlarmType.FOLLOW_CREW, AlarmType.FOLLOW_CREW.getText()));
+
             //sse 로직
-            if (sseEmitters.containsKey(user.getUsername())) {
-                SseEmitter sseEmitter = sseEmitters.get(user.getUsername());
-                try {
-                    sseEmitter.send(SseEmitter.event().name("alarm").data(
-                            followingUser.getNickName() + "님이 회원님을 팔로우 합니다💕 "));
-                } catch (Exception e) {
-                    sseEmitters.remove(user.getUsername());
-                }
+            var userKey = user.getUsername();
+            if (sseEmitters.containsKey(userKey)) {
+                SendAlarmToUser(followingUser, "모임이 종료되었습니다! 같이 고생한 크루들에게 후기를 남겨보세요!");
             }
         }
         return new FollowingResponse(user.getUsername(),user.getNickName(),true, user.getImagePath());
