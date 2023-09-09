@@ -32,16 +32,8 @@ public class SseController {
             e.printStackTrace();
         }
 
-        // user의 pk값을 key값으로 해서 SseEmitter를 저장
+        // user의 id를 key값으로 해서 SseEmitter를 저장
         sseEmitters.put(userId, emitter);
-
-        Iterator<String> iter = sseEmitters.keySet().iterator();
-        while (iter.hasNext()) {
-            String key = iter.next();
-            String value = String.valueOf(sseEmitters.get(key));
-
-            log.info(key + " : " + value);
-        }
 
         emitter.onCompletion(() -> sseEmitters.remove(userId));
         emitter.onTimeout(() -> sseEmitters.remove(userId));

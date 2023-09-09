@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamproject.pocoapoco.domain.dto.Review.ReviewRequest;
 import teamproject.pocoapoco.domain.dto.crew.review.CrewReviewDetailResponse;
 import teamproject.pocoapoco.domain.dto.crew.review.CrewReviewResponse;
@@ -23,7 +22,8 @@ import teamproject.pocoapoco.repository.part.ParticipationRepository;
 import javax.transaction.Transactional;
 import java.util.List;
 
-import static teamproject.pocoapoco.controller.main.api.sse.SseController.sseEmitters;
+import static teamproject.pocoapoco.util.SseSender.SendAlarmToUser;
+import static teamproject.pocoapoco.util.SseSender.isUserLogin;
 
 @Service
 @RequiredArgsConstructor
@@ -57,17 +57,10 @@ public class CrewReviewService {
                 alarmRepository.save(Alarm.toEntityFromReview(toUser, fromUser, review, AlarmType.REVIEW_CREW, AlarmType.REVIEW_CREW.getText()));
 
                 //sse 로직
-                if (sseEmitters.containsKey(toUser.getUsername())) {
-                    log.info("모임 종료 후 작동");
-                    SseEmitter sseEmitter = sseEmitters.get(toUser.getUsername());
-                    try {
-                        sseEmitter.send(SseEmitter.event().name("alarm").data(
-                                "리뷰가 등록되었어요! 확인해 보세요!"));
-                    } catch (Exception e) {
-                        sseEmitters.remove(toUser.getUsername());
-                    }
+                if (isUserLogin(toUser.getUsername())) {
+                    SendAlarmToUser(toUser, "리뷰가 등록되었어요! 확인해 보세요!");
                 }
-                
+
             }
         }catch (NullPointerException e){
             log.info("이용자 후기 NullPointerException : 작성 가능한 후기 내용이 없습니다.");

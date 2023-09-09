@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamproject.pocoapoco.domain.dto.comment.CommentRequest;
 import teamproject.pocoapoco.domain.dto.comment.ui.CommentViewResponse;
 import teamproject.pocoapoco.domain.entity.Alarm;
@@ -19,7 +18,8 @@ import teamproject.pocoapoco.repository.UserRepository;
 
 import java.util.List;
 
-import static teamproject.pocoapoco.controller.main.api.sse.SseController.sseEmitters;
+import static teamproject.pocoapoco.util.SseSender.SendAlarmToUser;
+import static teamproject.pocoapoco.util.SseSender.isUserLogin;
 
 @Service
 @RequiredArgsConstructor
@@ -56,20 +56,13 @@ public class CommentViewService {
         alarmRepository.save(Alarm.toEntityFromComment(user, parentComment.getCrew(),parentComment ,AlarmType.ADD_COMMENT, comment.getComment()));
 
         //sse 로직
-        if (sseEmitters.containsKey(parentComment.getUser().getUsername())) {
-            log.info("userName이 Map으로 등록되어있어 알림 sse 작동됩니다.");
-            log.info("Sse username = {}", parentComment.getUser().getUsername());
-            SseEmitter sseEmitter = sseEmitters.get(parentComment.getUser().getUsername());
-            try {
-                sseEmitter.send(SseEmitter.event().name("alarm").data(
-                        user.getNickName() + "님이 \"" + parentComment.getComment() + "\" 댓글에 댓글을 남겼습니다."));
-            } catch (Exception e) {
-                sseEmitters.remove(parentComment.getUser().getUsername());
-            }
+        if (isUserLogin(parentComment.getUser().getUsername())) {
+            SendAlarmToUser(user, parentComment, "\" 댓글에 댓글을 남겼습니다.");
         }
 
         return CommentViewResponse.of(comment);
     }
+
 
     private User getUser(String userName) {
         return userRepository.findByUserName(userName)

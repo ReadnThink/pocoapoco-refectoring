@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamproject.pocoapoco.domain.dto.like.LikeViewResponse;
 import teamproject.pocoapoco.domain.entity.Alarm;
 import teamproject.pocoapoco.domain.entity.Crew;
@@ -20,7 +19,8 @@ import teamproject.pocoapoco.repository.UserRepository;
 
 import java.util.List;
 
-import static teamproject.pocoapoco.controller.main.api.sse.SseController.sseEmitters;
+import static teamproject.pocoapoco.util.SseSender.SendAlarmToUser;
+import static teamproject.pocoapoco.util.SseSender.isUserLogin;
 
 @Service
 @Slf4j
@@ -52,16 +52,8 @@ public class LikeViewService {
             likeViewResponse.setLikeCheck(1);
 
             //sse 로직
-            if (sseEmitters.containsKey(crew.getUser().getUsername())) {
-                log.info("userName이 Map으로 등록되어있어 알림 sse 작동됩니다.");
-                log.info("Sse username = {}", crew.getUser().getUsername());
-                SseEmitter sseEmitter = sseEmitters.get(crew.getUser().getUsername());
-                try {
-                    sseEmitter.send(SseEmitter.event().name("alarm").data(
-                            user.getNickName() + "님이 \"" + crew.getTitle() + "\" 모임에 좋아요를 눌렀습니다."));
-                } catch (Exception e) {
-                    sseEmitters.remove(crew.getUser().getUsername());
-                }
+            if (isUserLogin(crew.getUser().getUsername())) {
+                SendAlarmToUser(user, crew, "\" 모임에 좋아요를 눌렀습니다.");
             }
         }
 
