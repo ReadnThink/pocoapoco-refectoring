@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamproject.pocoapoco.domain.dto.crew.CrewDetailResponse;
 import teamproject.pocoapoco.domain.dto.crew.CrewRequest;
 import teamproject.pocoapoco.domain.dto.crew.CrewResponse;
@@ -34,7 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static teamproject.pocoapoco.controller.main.api.sse.SseController.sseEmitters;
-import static teamproject.pocoapoco.util.SseUtil.SendAlarmToUser;
+import static teamproject.pocoapoco.util.SseSender.SendAlarmToUser;
 
 
 @Service

@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamproject.pocoapoco.domain.dto.follow.FollowingResponse;
 import teamproject.pocoapoco.domain.entity.Alarm;
 import teamproject.pocoapoco.domain.entity.Follow;
@@ -21,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static teamproject.pocoapoco.controller.main.api.sse.SseController.sseEmitters;
-import static teamproject.pocoapoco.util.SseUtil.SendAlarmToUser;
+import static teamproject.pocoapoco.util.SseSender.SendAlarmToUser;
 
 @Service
 @RequiredArgsConstructor

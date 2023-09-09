@@ -9,7 +9,7 @@ import teamproject.pocoapoco.domain.entity.User;
 import static teamproject.pocoapoco.controller.main.api.sse.SseController.sseEmitters;
 
 @Slf4j
-public class SseUtil {
+public class SseSender {
     public static boolean isUserLogin(final String username) {
         return sseEmitters.containsKey(username);
     }

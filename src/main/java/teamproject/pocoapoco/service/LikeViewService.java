@@ -19,8 +19,8 @@ import teamproject.pocoapoco.repository.UserRepository;
 
 import java.util.List;
 
-import static teamproject.pocoapoco.util.SseUtil.SendAlarmToUser;
-import static teamproject.pocoapoco.util.SseUtil.isUserLogin;
+import static teamproject.pocoapoco.util.SseSender.SendAlarmToUser;
+import static teamproject.pocoapoco.util.SseSender.isUserLogin;
 
 @Service
 @Slf4j

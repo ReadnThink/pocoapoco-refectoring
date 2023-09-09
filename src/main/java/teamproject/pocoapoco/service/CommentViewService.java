@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamproject.pocoapoco.domain.dto.comment.CommentRequest;
 import teamproject.pocoapoco.domain.dto.comment.ui.CommentViewResponse;
 import teamproject.pocoapoco.domain.entity.Alarm;
@@ -19,9 +18,8 @@ import teamproject.pocoapoco.repository.UserRepository;
 
 import java.util.List;
 
-import static teamproject.pocoapoco.controller.main.api.sse.SseController.sseEmitters;
-import static teamproject.pocoapoco.util.SseUtil.SendAlarmToUser;
-import static teamproject.pocoapoco.util.SseUtil.isUserLogin;
+import static teamproject.pocoapoco.util.SseSender.SendAlarmToUser;
+import static teamproject.pocoapoco.util.SseSender.isUserLogin;
 
 @Service
 @RequiredArgsConstructor
