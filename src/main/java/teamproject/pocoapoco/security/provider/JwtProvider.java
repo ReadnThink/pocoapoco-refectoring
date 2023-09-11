@@ -5,24 +5,24 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
-import teamproject.pocoapoco.controller.main.ui.ViewController;
 import teamproject.pocoapoco.domain.entity.User;
 import teamproject.pocoapoco.enums.UserRole;
 import teamproject.pocoapoco.exception.AppException;
 import teamproject.pocoapoco.exception.ErrorCode;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
 
-@Component
+@Configuration
 @Slf4j
 public class JwtProvider {
-    private final String SECRET = "asdfknsadfksadnvckasdncksnadkcnklvnzldkknvklxnzsdnnbvklzdfkzfkdnfvk";
-    private final Long ACCESS_EXPIRATION = 1000 * 60 * 60 * 24 * 14L; // 30분
+    @Value("${jwt.secret}")
+    private String secretKey;
+    private final Long ACCESS_EXPIRATION = 1000 * 60 * 60 * 24 * 14L;
     public final Long REFRESH_EXPIRATION = 1000 * 60 * 60 * 24 * 14L; // 2주
     private final String USERNAME_KEY = "username";
     private final String USERID_KEY = "userid";
@@ -44,11 +44,13 @@ public class JwtProvider {
         claims.put(USERNAME_KEY, user.getUsername());
         claims.put(ROLE_KEY, user.getRole().name());
 
+        log.info("debug secretKey : "+secretKey);
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION))
-                .signWith(SignatureAlgorithm.HS256, SECRET)
+                .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
 
@@ -59,13 +61,13 @@ public class JwtProvider {
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION))
-                .signWith(SignatureAlgorithm.HS256, SECRET)
+                .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token);
+            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.SignatureException | MalformedJwtException exception) { // 잘못된 jwt signature
 //            log.info("validateToken : 잘못된 시그니처");
@@ -85,7 +87,7 @@ public class JwtProvider {
 
     public Authentication getAuthentication(String accessToken) {
         // token 복호화
-        Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(accessToken).getBody();
+        Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(accessToken).getBody();
         Long id = Long.parseLong(claims.get(ID_KEY).toString());
         String username = claims.get(USERNAME_KEY).toString();
         String roleName = claims.get(ROLE_KEY).toString();
@@ -101,13 +103,13 @@ public class JwtProvider {
 
     public String getUserId(String token){
 
-        Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
+        Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
         return claims.get(USERID_KEY, String.class);
     }
 
     public Long getId(String token){
 
-        Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
+        Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
         return claims.get(ID_KEY, Long.class);
     }
     /***
@@ -117,7 +119,7 @@ public class JwtProvider {
      */
     public Long getCurrentExpiration(String token) {
         // accessToken 남은 유효시간
-        Date expiration = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody().getExpiration();
+        Date expiration = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getExpiration();
         // 현재 시간
         Long now = new Date().getTime();
         return (expiration.getTime() - now);

@@ -69,7 +69,7 @@ public class UserService {
         log.info("권한 조회: {}",user.getRole());
 
         //token 발행
-        return new UserLoginResponse(refreshToken, new JwtProvider().generateAccessToken(user));
+        return new UserLoginResponse(refreshToken, jwtProvider.generateAccessToken(user));
     }
 
     public UserJoinResponse saveUser(UserJoinRequest userJoinRequest){
@@ -140,7 +140,7 @@ public class UserService {
         redisTemplate.opsForValue()
                 .set(authentication.getName(), newRefreshToken, expiredTime , TimeUnit.MILLISECONDS);
 
-        return new ReIssueResponse(refreshToken, new JwtProvider().generateAccessToken(user));
+        return new ReIssueResponse(refreshToken, jwtProvider.generateAccessToken(user));
     }
 
 
