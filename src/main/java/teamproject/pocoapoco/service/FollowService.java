@@ -1,6 +1,6 @@
 package teamproject.pocoapoco.service;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,21 +14,29 @@ import teamproject.pocoapoco.exception.ErrorCode;
 import teamproject.pocoapoco.repository.AlarmRepository;
 import teamproject.pocoapoco.repository.FollowRepository;
 import teamproject.pocoapoco.repository.UserRepository;
+import teamproject.pocoapoco.util.SseSendStrategy;
 
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static teamproject.pocoapoco.controller.main.api.sse.SseController.sseEmitters;
-import static teamproject.pocoapoco.util.SseSender.SendAlarmToUser;
-
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class FollowService {
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
     private final AlarmRepository alarmRepository;
+    private final SseSendStrategy sseSendStrategy;
+
+    public FollowService(final UserRepository userRepository,
+                         final FollowRepository followRepository,
+                         final AlarmRepository alarmRepository,
+                         @Qualifier("followSseAlarm") final SseSendStrategy sseSendStrategy) {
+        this.userRepository = userRepository;
+        this.followRepository = followRepository;
+        this.alarmRepository = alarmRepository;
+        this.sseSendStrategy = sseSendStrategy;
+    }
 
     @Transactional
     public FollowingResponse follow(String followingUserId, Long userId){
@@ -60,40 +68,22 @@ public class FollowService {
             //알림 저장
             alarmRepository.save(Alarm.toEntityFromFollow(user, followingUser, AlarmType.FOLLOW_CREW, AlarmType.FOLLOW_CREW.getText()));
 
-            //sse 로직
-            var userKey = user.getUsername();
-            if (sseEmitters.containsKey(userKey)) {
-                SendAlarmToUser(followingUser, "모임이 종료되었습니다! 같이 고생한 크루들에게 후기를 남겨보세요!");
-            }
+            sendSseAlarm(followingUser, user);
         }
         return new FollowingResponse(user.getUsername(),user.getNickName(),true, user.getImagePath());
 
     }
-//    public String unFollow(String unFollowingUserId, Long userId){
-//
-//        User unFollowingUser = userRepository.findByUserId(unFollowingUserId).orElseThrow(()->
-//        {
-//            throw new AppException(ErrorCode.USERID_NOT_FOUND,ErrorCode.USERID_NOT_FOUND.getMessage());
-//        });
-//
-//        User user = userRepository.findById(userId).orElseThrow(()->
-//        {
-//            throw new AppException(ErrorCode.USERID_NOT_FOUND,ErrorCode.USERID_NOT_FOUND.getMessage());
-//        });
-//
-//        if(userId.equals(unFollowingUserId)){
-//            throw new AppException(ErrorCode.WRONG_PATH,"자기 자신을 팔로우 취소할 수 없습니다.");
-//        }
-//
-//        Follow follow = followRepository.findByFollowingUserIdAndFollowedUserId(unFollowingUser.getId(),user.getId()).orElseThrow(()->
-//        {
-//            throw new AppException(ErrorCode.WRONG_PATH,"해당 유저를 팔로우 하고 있지 않습니다");
-//
-//        });
-//        followRepository.delete(follow);
-//        return user.getUsername()+"님을 팔로우 취소합니다.";
-//
-//    }
+
+    private void sendSseAlarm(final User followingUser, final User user) {
+        var userSseKey = user.getUsername();
+        if (sseSendStrategy.isUserLogin(userSseKey)) {
+            sseSendStrategy.SendAlarm(
+                    userSseKey,
+                    followingUser.getNickName(),
+                    "",
+                    "님이 회원님을 팔로우 합니다💕");
+        }
+    }
 
     @Transactional
     public Integer followedCount(Long userId){ //해당 유저를 팔로우 하고 있는 유저의 수

@@ -1,7 +1,7 @@
 package teamproject.pocoapoco.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,25 +17,32 @@ import teamproject.pocoapoco.repository.AlarmRepository;
 import teamproject.pocoapoco.repository.CrewRepository;
 import teamproject.pocoapoco.repository.CrewReviewRepository;
 import teamproject.pocoapoco.repository.UserRepository;
-import teamproject.pocoapoco.repository.part.ParticipationRepository;
+import teamproject.pocoapoco.util.SseSendStrategy;
 
 import javax.transaction.Transactional;
 import java.util.List;
 
-import static teamproject.pocoapoco.util.SseSender.SendAlarmToUser;
-import static teamproject.pocoapoco.util.SseSender.isUserLogin;
-
 @Service
-@RequiredArgsConstructor
 @Transactional
 @Slf4j
 public class CrewReviewService {
     private final UserRepository userRepository;
     private final CrewRepository crewRepository;
-
     private final CrewReviewRepository crewReviewRepository;
     private final AlarmRepository alarmRepository;
-    private final ParticipationRepository participationRepository;
+    private final SseSendStrategy sseSendStrategy;
+
+    public CrewReviewService(final UserRepository userRepository,
+                             final CrewRepository crewRepository,
+                             final CrewReviewRepository crewReviewRepository,
+                             final AlarmRepository alarmRepository,
+                             @Qualifier("addReviewSseAlarm") final SseSendStrategy sseSendStrategy) {
+        this.userRepository = userRepository;
+        this.crewRepository = crewRepository;
+        this.crewReviewRepository = crewReviewRepository;
+        this.alarmRepository = alarmRepository;
+        this.sseSendStrategy = sseSendStrategy;
+    }
 
     // 리뷰 저장
     @Transactional
@@ -56,14 +63,21 @@ public class CrewReviewService {
                 toUser.addReviewScore(review.getReviewScore());
                 alarmRepository.save(Alarm.toEntityFromReview(toUser, fromUser, review, AlarmType.REVIEW_CREW, AlarmType.REVIEW_CREW.getText()));
 
-                //sse 로직
-                if (isUserLogin(toUser.getUsername())) {
-                    SendAlarmToUser(toUser, "리뷰가 등록되었어요! 확인해 보세요!");
-                }
-
+                sendSseAlarm(toUser);
             }
         }catch (NullPointerException e){
             log.info("이용자 후기 NullPointerException : 작성 가능한 후기 내용이 없습니다.");
+        }
+    }
+
+    private void sendSseAlarm(final User toUser) {
+        var userSseKey = toUser.getUsername();
+        if (sseSendStrategy.isUserLogin(userSseKey)) {
+            sseSendStrategy.SendAlarm(
+                    userSseKey,
+                    "",
+                    "",
+                    "리뷰가 등록되었어요! 확인해 보세요!");
         }
     }
 
@@ -102,45 +116,6 @@ public class CrewReviewService {
 //                .reviews(reviews)
                 .build();
     }
-/*
-    // reviewScore 계산
-    @Transactional
-    public double calcReviewScore(Long crewId, User receiver) {
-        // review 받는 사람 list Participation에서 구하고
-        Crew crew = crewRepository.findById(crewId).get();
-        // 같이 모임을 한 사람들의 review에서 reviewScore만 추출
-        List<Double> reviewScores = crewReviewRepository.findReviewByCrewAndToUser(crew, receiver)
-                .stream()
-                .map(Review::getReviewScore)
-                .collect(Collectors.toList());
-        double reviewScoreToUser = reviewScores.stream().mapToDouble(i -> i).sum();
-        System.out.println("receiver:"+receiver.getUsername()+"받을 점수"+reviewScoreToUser);
-        int reviewCount = crewReviewRepository.countReviewByCrewAndToUser(crew, receiver);
-        double result = Math.round(reviewScoreToUser / reviewCount);
-
-        return (result*100) / 100.0; // 소수점 2째자리
-
-    }
-         */
-
-    // reviewScore 저장
-    /*@Transactional
-    public void addMannerScore(Long crewId) {
-        Crew crew = crewRepository.findById(crewId).get();
-        // 해당 모임에 참여한 참가자에서 user을 추출
-        List<User> users = participationRepository.findByCrew(crew)
-                .stream()
-                .map(Participation::getUser)
-                .collect(Collectors.toList());
-        for(User user : users) {
-            // user의 mannerScore에 계산된 reviewScore 추가
-             Review review = crewReviewRepository.findReviewByCrewAndToUser(crew, user);
-            double score = review.getReviewScore();
-            System.out.println("receiver:"+user.getUsername()+"받을 점수"+score);
-            user.addReviewScore(score);
-        }
-    }*/
-
 
     public long getReviewAllCount(String userName) {
         User user = userRepository.findByUserName(userName).get();

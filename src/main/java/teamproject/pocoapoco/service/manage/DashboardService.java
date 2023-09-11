@@ -2,10 +2,7 @@ package teamproject.pocoapoco.service.manage;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Service;
 import teamproject.pocoapoco.enums.SportEnum;
 import teamproject.pocoapoco.enums.StrictEnum;
@@ -13,7 +10,6 @@ import teamproject.pocoapoco.repository.CrewRepository;
 import teamproject.pocoapoco.repository.UserRepository;
 
 import javax.transaction.Transactional;
-import java.util.Iterator;
 import java.util.Set;
 
 @Service

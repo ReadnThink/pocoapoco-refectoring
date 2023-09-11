@@ -14,9 +14,9 @@ import teamproject.pocoapoco.domain.entity.check.ChatConfigEntity;
 import teamproject.pocoapoco.exception.AppException;
 import teamproject.pocoapoco.exception.ErrorCode;
 import teamproject.pocoapoco.repository.UserRepository;
+import teamproject.pocoapoco.repository.chat.ChatConfigRepository;
 import teamproject.pocoapoco.repository.chat.ChatRepository;
 import teamproject.pocoapoco.repository.chat.ChatRoomRepository;
-import teamproject.pocoapoco.repository.chat.ChatConfigRepository;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
