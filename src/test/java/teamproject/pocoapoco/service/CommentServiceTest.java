@@ -22,6 +22,7 @@ import teamproject.pocoapoco.repository.AlarmRepository;
 import teamproject.pocoapoco.repository.CommentRepository;
 import teamproject.pocoapoco.repository.CrewRepository;
 import teamproject.pocoapoco.repository.UserRepository;
+import teamproject.pocoapoco.util.CommentSseAlarm;
 
 import java.util.Optional;
 
@@ -36,6 +37,7 @@ class CommentServiceTest {
     private UserRepository userRepository = Mockito.mock(UserRepository.class);
     private CrewRepository crewRepository = Mockito.mock(CrewRepository.class);
     private AlarmRepository alarmRepository = Mockito.mock(AlarmRepository.class);
+    private CommentSseAlarm commentSseAlarm = Mockito.mock(CommentSseAlarm.class);
     private CommentService commentService;
     Comment commentEntity;
     private TestInfoFixture.TestInfo fixture;
@@ -49,7 +51,7 @@ class CommentServiceTest {
     @BeforeEach
     void setUp() {
         commentEntity = CommentEntityFixture.get(userName, userName);
-        commentService = new CommentService(commentRepository, userRepository, crewRepository, alarmRepository);
+        commentService = new CommentService(commentRepository, userRepository, crewRepository, alarmRepository, commentSseAlarm);
         userEntityFixture = UserEntityFixture.get(UserJoinRequest.builder()
                 .userName(userName)
                 .password(password)

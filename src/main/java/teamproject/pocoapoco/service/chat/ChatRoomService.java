@@ -3,7 +3,6 @@ package teamproject.pocoapoco.service.chat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import teamproject.pocoapoco.domain.dto.chat.ChatRoomDTO;
-import teamproject.pocoapoco.domain.dto.crew.CrewRequest;
 import teamproject.pocoapoco.domain.entity.Crew;
 import teamproject.pocoapoco.domain.entity.User;
 import teamproject.pocoapoco.domain.entity.chat.ChatRoom;
@@ -17,7 +16,6 @@ import teamproject.pocoapoco.repository.part.ParticipationRepository;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service

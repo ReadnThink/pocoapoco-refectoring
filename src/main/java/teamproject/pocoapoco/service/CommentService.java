@@ -1,6 +1,5 @@
 package teamproject.pocoapoco.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,14 +17,12 @@ import teamproject.pocoapoco.repository.AlarmRepository;
 import teamproject.pocoapoco.repository.CommentRepository;
 import teamproject.pocoapoco.repository.CrewRepository;
 import teamproject.pocoapoco.repository.UserRepository;
+import teamproject.pocoapoco.util.CommentSseAlarm;
+import teamproject.pocoapoco.util.SseSendStrategy;
 
 import java.time.LocalDateTime;
 
-import static teamproject.pocoapoco.util.SseSender.SendAlarmToUser;
-import static teamproject.pocoapoco.util.SseSender.isUserLogin;
-
 @Service
-@RequiredArgsConstructor
 @Transactional
 @Slf4j
 public class CommentService {
@@ -34,6 +31,19 @@ public class CommentService {
     private final UserRepository userRepository;
     private final CrewRepository crewRepository;
     private final AlarmRepository alarmRepository;
+    private final SseSendStrategy sseSendStrategy;
+
+    public CommentService(final CommentRepository commentRepository,
+                          final UserRepository userRepository,
+                          final CrewRepository crewRepository,
+                          final AlarmRepository alarmRepository,
+                          final CommentSseAlarm sseSendStrategy) {
+        this.commentRepository = commentRepository;
+        this.userRepository = userRepository;
+        this.crewRepository = crewRepository;
+        this.alarmRepository = alarmRepository;
+        this.sseSendStrategy = sseSendStrategy;
+    }
 
     public Page<CommentResponse> getCommentList(Pageable pageable, Long crewId) {
         Page<Comment> list = commentRepository.findByCrewId(crewId, pageable);
@@ -51,12 +61,22 @@ public class CommentService {
         alarmRepository.save(Alarm.toEntity(user, crew, AlarmType.ADD_COMMENT, comment.getComment()));
 
         //sse 로직
-        if (isUserLogin(crew.getUser().getUsername())) {
-            SendAlarmToUser(user, crew, "\" 모임에 댓글을 남겼습니다.");
-        }
+        sendSseAlarm(user, crew);
 
         return CommentResponse.of(comment);
     }
+
+    private void sendSseAlarm(final User fromUser, final Crew toComment) {
+        var userSseKey = toComment.getUser().getUsername();
+        if (sseSendStrategy.isUserLogin(userSseKey)) {
+            sseSendStrategy.SendAlarm(
+                    userSseKey,
+                    fromUser.getNickName(),
+                    toComment.getTitle(),
+                    "\"모임에 댓글을 남겼습니다.");
+        }
+    }
+
     public CommentReplyResponse addCommentReply(CommentReplyRequest commentReplyRequest, Long crewId, Long parentCommentId, String userName) {
         User user = getUser(userName);
         Crew crew = getCrew(crewId);

@@ -1,8 +1,8 @@
 package teamproject.pocoapoco.service;
 
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -25,6 +25,7 @@ import teamproject.pocoapoco.repository.AlarmRepository;
 import teamproject.pocoapoco.repository.CrewRepository;
 import teamproject.pocoapoco.repository.UserRepository;
 import teamproject.pocoapoco.repository.part.ParticipationRepository;
+import teamproject.pocoapoco.util.SseSendStrategy;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -32,12 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static teamproject.pocoapoco.controller.main.api.sse.SseController.sseEmitters;
-import static teamproject.pocoapoco.util.SseSender.SendAlarmToUser;
-
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 @Slf4j
 public class CrewService {
@@ -46,6 +43,19 @@ public class CrewService {
     private final UserRepository userRepository;
     private final ParticipationRepository participationRepository;
     private final AlarmRepository alarmRepository;
+    private final SseSendStrategy sseSendStrategy;
+
+    public CrewService(final CrewRepository crewRepository,
+                       final UserRepository userRepository,
+                       final ParticipationRepository participationRepository,
+                       final AlarmRepository alarmRepository,
+                       @Qualifier("reviewToJoinedCrewsSseAlarm") final SseSendStrategy sseSendStrategy) {
+        this.crewRepository = crewRepository;
+        this.userRepository = userRepository;
+        this.participationRepository = participationRepository;
+        this.alarmRepository = alarmRepository;
+        this.sseSendStrategy = sseSendStrategy;
+    }
 
 
     // 크루 게시글 등록
@@ -102,17 +112,23 @@ public class CrewService {
             log.info("모임 종류 후 username입니다 = {}",participation.getUser().getUsername());
         }
 
-        //sse 로직
-        for (int i = 0; i < userList.size(); i++) {
-            var userKey = userList.get(i);
-            if (sseEmitters.containsKey(userKey)) {
-                log.info("모임 종료 후 작동");
-                SendAlarmToUser(userKey, "모임이 종료되었습니다! 같이 고생한 크루들에게 후기를 남겨보세요!");
-            }
-        }
+        sendSseAlarm(userList);
 
         crew.setFinish(1);
         return new CrewResponse("Crew 상태변경 완료", crewId);
+    }
+
+    private void sendSseAlarm(final List<String> userList) {
+        for (int i = 0; i < userList.size(); i++) {
+            var userSseKey = userList.get(i);
+            if (sseSendStrategy.isUserLogin(userSseKey)) {
+                sseSendStrategy.SendAlarm(
+                        userSseKey,
+                        "",
+                        "",
+                        "모임이 종료되었습니다! 같이 고생한 크루들에게 후기를 남겨보세요!");
+            }
+        }
     }
 
 
