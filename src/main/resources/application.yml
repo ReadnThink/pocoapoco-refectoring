@@ -52,6 +52,6 @@ spring:
 #      region:
 #        static: ap-northeast-2
   main.allow-bean-definition-overriding: true # jpaAuditingHandler 에러 해결
+
 jwt:
-  token:
-    secret: "secreteKey"
+  secret:
