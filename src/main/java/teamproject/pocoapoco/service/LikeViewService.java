@@ -1,7 +1,6 @@
 package teamproject.pocoapoco.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import teamproject.pocoapoco.domain.dto.like.LikeViewResponse;
@@ -16,7 +15,10 @@ import teamproject.pocoapoco.repository.AlarmRepository;
 import teamproject.pocoapoco.repository.CrewRepository;
 import teamproject.pocoapoco.repository.LikeRepository;
 import teamproject.pocoapoco.repository.UserRepository;
-import teamproject.pocoapoco.util.SseSendStrategy;
+import teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum;
+import teamproject.pocoapoco.service.sse.dto.SseAlarmData;
+import teamproject.pocoapoco.service.sse.SseSender;
+import teamproject.pocoapoco.service.sse.UserSseKey;
 
 import java.util.List;
 
@@ -28,18 +30,18 @@ public class LikeViewService {
     private final CrewRepository crewRepository;
     private final UserRepository userRepository;
     private final AlarmRepository alarmRepository;
-    private final SseSendStrategy sseSendStrategy;
+    private final SseSender sseSender;
 
     public LikeViewService(final LikeRepository likeRepository,
                            final CrewRepository crewRepository,
                            final UserRepository userRepository,
                            final AlarmRepository alarmRepository,
-                           @Qualifier("likeSseAlarm") final SseSendStrategy sseSendStrategy) {
+                           final SseSender sseSender) {
         this.likeRepository = likeRepository;
         this.crewRepository = crewRepository;
         this.userRepository = userRepository;
         this.alarmRepository = alarmRepository;
-        this.sseSendStrategy = sseSendStrategy;
+        this.sseSender = sseSender;
     }
 
     // view 페이지 like 기능
@@ -73,14 +75,17 @@ public class LikeViewService {
         return likeViewResponse;
     }
 
-    private void sendSseAlarm(final User fromUser, final Crew toCrew) {
-        var userSseKey = toCrew.getUser().getUsername();
-        if (sseSendStrategy.isUserLogin(userSseKey)) {
-            sseSendStrategy.SendAlarm(
-                    userSseKey,
-                    fromUser.getNickName(),
-                    toCrew.getTitle(),
-                    "\" 모임에 좋아요를 눌렀습니다💕");
-        }
+    private void sendSseAlarm(final User user, final Crew crew) {
+        sseSender.sendAlarmFromUserToTargetUser(
+                UserSseKey.builder()
+                        .userSseKey(crew.getUser().getUsername())
+                        .build(),
+                SseAlarmData.builder()
+                        .fromUser(user.getNickName())
+                        .targetUser(crew.getTitle())
+                        .message(AlarmMessagesEnum.LIKE)
+                        .build()
+        );
     }
+
 }

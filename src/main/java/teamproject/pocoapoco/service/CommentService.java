@@ -17,8 +17,10 @@ import teamproject.pocoapoco.repository.AlarmRepository;
 import teamproject.pocoapoco.repository.CommentRepository;
 import teamproject.pocoapoco.repository.CrewRepository;
 import teamproject.pocoapoco.repository.UserRepository;
-import teamproject.pocoapoco.util.CommentSseAlarm;
-import teamproject.pocoapoco.util.SseSendStrategy;
+import teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum;
+import teamproject.pocoapoco.service.sse.dto.SseAlarmData;
+import teamproject.pocoapoco.service.sse.SseSender;
+import teamproject.pocoapoco.service.sse.UserSseKey;
 
 import java.time.LocalDateTime;
 
@@ -26,23 +28,22 @@ import java.time.LocalDateTime;
 @Transactional
 @Slf4j
 public class CommentService {
-
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final CrewRepository crewRepository;
     private final AlarmRepository alarmRepository;
-    private final SseSendStrategy sseSendStrategy;
+    private final SseSender sseSender;
 
     public CommentService(final CommentRepository commentRepository,
                           final UserRepository userRepository,
                           final CrewRepository crewRepository,
                           final AlarmRepository alarmRepository,
-                          final CommentSseAlarm sseSendStrategy) {
+                          final SseSender sseSender) {
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
         this.crewRepository = crewRepository;
         this.alarmRepository = alarmRepository;
-        this.sseSendStrategy = sseSendStrategy;
+        this.sseSender = sseSender;
     }
 
     public Page<CommentResponse> getCommentList(Pageable pageable, Long crewId) {
@@ -60,21 +61,22 @@ public class CommentService {
         Comment comment = commentRepository.save(commentRequest.toEntity(user, crew));
         alarmRepository.save(Alarm.toEntity(user, crew, AlarmType.ADD_COMMENT, comment.getComment()));
 
-        //sse 로직
         sendSseAlarm(user, crew);
 
         return CommentResponse.of(comment);
     }
 
-    private void sendSseAlarm(final User fromUser, final Crew toComment) {
-        var userSseKey = toComment.getUser().getUsername();
-        if (sseSendStrategy.isUserLogin(userSseKey)) {
-            sseSendStrategy.SendAlarm(
-                    userSseKey,
-                    fromUser.getNickName(),
-                    toComment.getTitle(),
-                    "\"모임에 댓글을 남겼습니다.");
-        }
+    private void sendSseAlarm(final User user, final Crew crew) {
+        sseSender.sendAlarmFromUserToTargetUser(
+                UserSseKey.builder()
+                        .userSseKey(crew.getUser().getUsername())
+                        .build(),
+                SseAlarmData.builder()
+                        .fromUser(user.getNickName())
+                        .targetUser(crew.getTitle())
+                        .message(AlarmMessagesEnum.ADD_COMMENT_TO_ACTIVITY)
+                        .build()
+        );
     }
 
     public CommentReplyResponse addCommentReply(CommentReplyRequest commentReplyRequest, Long crewId, Long parentCommentId, String userName) {
