@@ -24,6 +24,8 @@ import teamproject.pocoapoco.service.sse.UserSseKey;
 import javax.transaction.Transactional;
 import java.util.List;
 
+import static teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum.*;
+
 @Service
 @Transactional
 @Slf4j
@@ -79,7 +81,7 @@ public class CrewReviewService {
                         .build()
                 ,
                 SseAlarmData.builder()
-                        .message(AlarmMessagesEnum.CHECK_REVIEW)
+                        .message(CHECK_REVIEW)
                         .build()
         );
     }

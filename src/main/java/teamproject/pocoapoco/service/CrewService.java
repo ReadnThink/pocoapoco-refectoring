@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum.*;
+
 
 @Service
 @Transactional
@@ -125,7 +127,7 @@ public class CrewService {
                             .userSseKey(userList.get(i))
                             .build(),
                     SseAlarmData.builder()
-                            .message(AlarmMessagesEnum.ADD_REVIEW_TO_CREWS)
+                            .message(ADD_REVIEW_TO_CREWS)
                             .build()
             );
         }

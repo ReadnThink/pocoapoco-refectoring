@@ -22,6 +22,8 @@ import teamproject.pocoapoco.service.sse.UserSseKey;
 
 import java.util.List;
 
+import static teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum.*;
+
 @Service
 @Slf4j
 @Transactional
@@ -83,7 +85,7 @@ public class LikeViewService {
                 SseAlarmData.builder()
                         .fromUser(user.getNickName())
                         .targetUser(crew.getTitle())
-                        .message(AlarmMessagesEnum.LIKE)
+                        .message(LIKE)
                         .build()
         );
     }

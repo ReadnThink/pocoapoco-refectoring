@@ -24,6 +24,9 @@ import teamproject.pocoapoco.service.sse.UserSseKey;
 
 import java.time.LocalDateTime;
 
+import static teamproject.pocoapoco.enums.AlarmType.ADD_COMMENT;
+import static teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum.ADD_COMMENT_TO_ACTIVITY;
+
 @Service
 @Transactional
 @Slf4j
@@ -59,7 +62,7 @@ public class CommentService {
         Crew crew = getCrew(crewId);
 
         Comment comment = commentRepository.save(commentRequest.toEntity(user, crew));
-        alarmRepository.save(Alarm.toEntity(user, crew, AlarmType.ADD_COMMENT, comment.getComment()));
+        alarmRepository.save(Alarm.toEntity(user, crew, ADD_COMMENT, comment.getComment()));
 
         sendSseAlarm(user, crew);
 
@@ -74,7 +77,7 @@ public class CommentService {
                 SseAlarmData.builder()
                         .fromUser(user.getNickName())
                         .targetUser(crew.getTitle())
-                        .message(AlarmMessagesEnum.ADD_COMMENT_TO_ACTIVITY)
+                        .message(ADD_COMMENT_TO_ACTIVITY)
                         .build()
         );
     }
@@ -85,7 +88,7 @@ public class CommentService {
         Comment parentComment = getComment(parentCommentId);
 
         Comment comment = commentRepository.save(commentReplyRequest.toEntity(user, crew, parentComment));
-        alarmRepository.save(Alarm.toEntity(user, crew, AlarmType.ADD_COMMENT, comment.getComment()));
+        alarmRepository.save(Alarm.toEntity(user, crew, ADD_COMMENT, comment.getComment()));
 
         return CommentReplyResponse.of(comment);
     }

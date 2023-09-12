@@ -22,6 +22,8 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum.*;
+
 @Service
 @Transactional
 public class FollowService {
@@ -83,7 +85,7 @@ public class FollowService {
                         .build(),
                 SseAlarmData.builder()
                         .targetUser(followingUser.getNickName())
-                        .message(AlarmMessagesEnum.FOLLOW)
+                        .message(FOLLOW)
                         .build()
         );
     }
