@@ -1,7 +1,6 @@
 package teamproject.pocoapoco.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,10 +16,15 @@ import teamproject.pocoapoco.repository.AlarmRepository;
 import teamproject.pocoapoco.repository.CrewRepository;
 import teamproject.pocoapoco.repository.CrewReviewRepository;
 import teamproject.pocoapoco.repository.UserRepository;
-import teamproject.pocoapoco.util.SseSendStrategy;
+import teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum;
+import teamproject.pocoapoco.service.sse.dto.SseAlarmData;
+import teamproject.pocoapoco.service.sse.SseSender;
+import teamproject.pocoapoco.service.sse.UserSseKey;
 
 import javax.transaction.Transactional;
 import java.util.List;
+
+import static teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum.*;
 
 @Service
 @Transactional
@@ -30,18 +34,18 @@ public class CrewReviewService {
     private final CrewRepository crewRepository;
     private final CrewReviewRepository crewReviewRepository;
     private final AlarmRepository alarmRepository;
-    private final SseSendStrategy sseSendStrategy;
+    private final SseSender sseSender;
 
     public CrewReviewService(final UserRepository userRepository,
                              final CrewRepository crewRepository,
                              final CrewReviewRepository crewReviewRepository,
                              final AlarmRepository alarmRepository,
-                             @Qualifier("addReviewSseAlarm") final SseSendStrategy sseSendStrategy) {
+                             final SseSender sseSender) {
         this.userRepository = userRepository;
         this.crewRepository = crewRepository;
         this.crewReviewRepository = crewReviewRepository;
         this.alarmRepository = alarmRepository;
-        this.sseSendStrategy = sseSendStrategy;
+        this.sseSender = sseSender;
     }
 
     // 리뷰 저장
@@ -71,14 +75,15 @@ public class CrewReviewService {
     }
 
     private void sendSseAlarm(final User toUser) {
-        var userSseKey = toUser.getUsername();
-        if (sseSendStrategy.isUserLogin(userSseKey)) {
-            sseSendStrategy.SendAlarm(
-                    userSseKey,
-                    "",
-                    "",
-                    "리뷰가 등록되었어요! 확인해 보세요!");
-        }
+        sseSender.sendAlarmOnlyData(
+                UserSseKey.builder()
+                        .userSseKey(toUser.getUsername())
+                        .build()
+                ,
+                SseAlarmData.builder()
+                        .message(CHECK_REVIEW)
+                        .build()
+        );
     }
 
     @Transactional
