@@ -1,4 +1,4 @@
-package teamproject.pocoapoco.controller.main.api.sse;
+package teamproject.pocoapoco.controller.main.api.match;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,6 @@ import javax.transaction.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 public class RandomMatchController {
-    //랜던매치 누르면 작동
     private final LiveMatchService liveMatchService;
 
     @PostMapping("/live")

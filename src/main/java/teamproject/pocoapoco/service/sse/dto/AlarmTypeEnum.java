@@ -6,7 +6,11 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum AlarmTypeEnum {
-    ALARM("alarm");
+    ALARM("alarm"),
+    LIVE_MATCH("liveMatch"),
+    LIVE_MATCH_PARTICIPANT_CNT("liveMatchCnt"),
+    LIVE_MATCH_CANCEL("liveMatchCancel")
+    ;
 
     private final String value;
 }
