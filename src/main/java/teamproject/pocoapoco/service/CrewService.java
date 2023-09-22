@@ -24,6 +24,7 @@ import teamproject.pocoapoco.repository.CrewRepository;
 import teamproject.pocoapoco.repository.UserRepository;
 import teamproject.pocoapoco.repository.part.ParticipationRepository;
 import teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum;
+import teamproject.pocoapoco.service.sse.dto.AlarmTypeEnum;
 import teamproject.pocoapoco.service.sse.dto.SseAlarmData;
 import teamproject.pocoapoco.service.sse.SseSender;
 import teamproject.pocoapoco.service.sse.UserSseKey;
@@ -35,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum.*;
+import static teamproject.pocoapoco.service.sse.dto.AlarmTypeEnum.*;
 
 
 @Service
@@ -47,11 +49,7 @@ public class CrewService {
     private final AlarmRepository alarmRepository;
     private final SseSender sseSender;
 
-    public CrewService(final CrewRepository crewRepository,
-                       final UserRepository userRepository,
-                       final ParticipationRepository participationRepository,
-                       final AlarmRepository alarmRepository,
-                       final SseSender sseSender) {
+    public CrewService(final CrewRepository crewRepository, final UserRepository userRepository, final ParticipationRepository participationRepository, final AlarmRepository alarmRepository, final SseSender sseSender) {
         this.crewRepository = crewRepository;
         this.userRepository = userRepository;
         this.participationRepository = participationRepository;
@@ -128,6 +126,7 @@ public class CrewService {
                             .build(),
                     SseAlarmData.builder()
                             .message(ADD_REVIEW_TO_CREWS)
+                            .alarmTypeEnum(ALARM)
                             .build()
             );
         }

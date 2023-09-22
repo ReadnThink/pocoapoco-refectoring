@@ -5,7 +5,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import teamproject.pocoapoco.service.sse.dto.SseAlarmData;
 
 import static teamproject.pocoapoco.controller.main.api.sse.SseController.sseEmitters;
-import static teamproject.pocoapoco.service.sse.dto.AlarmTypeEnum.ALARM;
 
 @Component
 public class SseSender {
@@ -15,7 +14,7 @@ public class SseSender {
             userSseEmitter
                     .send(SseEmitter
                             .event()
-                            .name(ALARM.getValue())
+                            .name(data.getAlarmTypeEnum().getValue())
                             .data(
                                     data.getFromUser()
                                             + "님이 \""
@@ -32,7 +31,7 @@ public class SseSender {
             userSseEmitter
                     .send(SseEmitter
                             .event()
-                            .name(ALARM.getValue())
+                            .name(data.getAlarmTypeEnum().getValue())
                             .data(data.getMessage().getValue()));
         } catch (Exception e) {
             sseEmitters.remove(userSseKey);
@@ -45,8 +44,21 @@ public class SseSender {
             userSseEmitter
                     .send(SseEmitter
                             .event()
-                            .name(ALARM.getValue())
-                            .data(data.getMessage().getValue()));
+                            .name(data.getAlarmTypeEnum().getValue())
+                            .data(data.getFromUser() + data.getMessage().getValue()));
+        } catch (Exception e) {
+            sseEmitters.remove(userSseKey);
+        }
+    }
+
+    public void sendAlarmRandomMatch(final UserSseKey userSseKey, final SseAlarmData data) {
+        SseEmitter userSseEmitter = getUserEmitter(userSseKey.getUserSseKey());
+        try {
+            userSseEmitter
+                    .send(SseEmitter
+                            .event()
+                            .name(data.getAlarmTypeEnum().getValue())
+                            .data(data.getData()));
         } catch (Exception e) {
             sseEmitters.remove(userSseKey);
         }

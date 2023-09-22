@@ -8,7 +8,7 @@ import lombok.Getter;
 public enum AlarmTypeEnum {
     ALARM("alarm"),
     LIVE_MATCH("liveMatch"),
-    LIVE_MATCH_PARTICIPANT_CNT("liveMatchCnt"),
+    LIVE_MATCH_WAITING_CNT("liveMatchCnt"),
     LIVE_MATCH_CANCEL("liveMatchCancel")
     ;
 
