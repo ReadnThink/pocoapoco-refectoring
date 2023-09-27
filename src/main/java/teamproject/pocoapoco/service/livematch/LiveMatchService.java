@@ -18,7 +18,9 @@ import teamproject.pocoapoco.service.sse.dto.AlarmTypeEnum;
 import teamproject.pocoapoco.service.sse.dto.SseAlarmData;
 
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import static teamproject.pocoapoco.service.sse.dto.AlarmTypeEnum.*;
 
@@ -46,7 +48,6 @@ public class LiveMatchService {
         log.info("==================실시간 매칭 Service 로직에 들어왔습니다 - username = {}, sport = {}", username, sport);
         redisTemplate.opsForZSet().add(sport, username, System.currentTimeMillis());
         redisTemplate.opsForSet().add(username + _LIVE_MATCH, sport);
-
         sendSportListCntToWaitingUsers(sport);
 
         Long matchingUsersCnt = redisTemplate.opsForZSet().zCard(sport);
@@ -55,11 +56,9 @@ public class LiveMatchService {
             final List<User> users = findUser(redisTemplate.opsForZSet().range(sport, 0, CREW_LIMIT));
             // todo 메서드의 매개변수가 중복되는것을 객체화 할 수는 없을까?
             Crew savedLiveMatchCrew = crewRepository.save(Crew.makeRandomMatchingCrew(users, sport, CREW_LIMIT));
-            // participations 만들고 저장 후 crew에 저장
             makeParticipationAndUpdateToCrew(users, savedLiveMatchCrew, sport);
             deleteRedisLiveMatchLists(users, sport);
             sendSseToUsersAfterMatchingAndRedirectToChattingRoom(users, savedLiveMatchCrew);
-
             log.info("삭제된 후 redis 대기열 : {}", redisTemplate.opsForZSet().zCard(sport));
         }
         return 1;
@@ -70,7 +69,6 @@ public class LiveMatchService {
                 .map(User::getUsername)
                 .forEach(userName -> {
                     redisTemplate.opsForZSet().remove(sport, userName);
-//                    usersSports.remove(userName + _LIVE_MATCH);
                 });
     }
 
