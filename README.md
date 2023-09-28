@@ -1,7 +1,21 @@
+# 🎯 Refectoring
 
-![header](https://capsule-render.vercel.app/api?type=waving&color=gradient&height=300&section=header&text=오늘부터%20운동메💪&fontSize=70)
+실시간 매칭, 실시간 알림 기능을 리펙토링 하였습니다.
+해당 레포지토리에 오시면 필수로 살펴보셔야 할 포인트입니다! <br/>
+
+[리펙토링 PR](https://github.com/ReadnThink/pocoapoco-refectoring/pulls?q=is%3Apr+is%3Aclosed) <br/>
+<br/>
+처음 개발을 시작하고 만들었던 기능이기에 코드의 가독성이 없고 <br/>
+효율적이지 못하였습니다. <br/>
+<br/>
+팀 프로젝트 이후 도메인 주도 개발, 클린코드, 모던 자바 인 액션, Object, 개구리책, 자바의 신 등을 읽고 
+기본기를 채웠습니다.
+<br/>
+시간이 없으시다면 꼭! 리펙토링 PR만이라도 체크해 주시면 감사드리겠습니다!
+
 
 # 오늘부터 운동메💪
+![header](https://capsule-render.vercel.app/api?type=waving&color=gradient&height=300&section=header&text=오늘부터%20운동메💪&fontSize=70)
 
 * **운동은 선택이 아닌 필수! 혼자가 아닌 다같이 하자~!**
 * **사용자에게 쉽고 간단한 운동메이트를 찾을 수 있게 하는 서비스 제공!**
