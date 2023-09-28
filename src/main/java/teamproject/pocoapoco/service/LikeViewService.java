@@ -16,6 +16,7 @@ import teamproject.pocoapoco.repository.CrewRepository;
 import teamproject.pocoapoco.repository.LikeRepository;
 import teamproject.pocoapoco.repository.UserRepository;
 import teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum;
+import teamproject.pocoapoco.service.sse.dto.AlarmTypeEnum;
 import teamproject.pocoapoco.service.sse.dto.SseAlarmData;
 import teamproject.pocoapoco.service.sse.SseSender;
 import teamproject.pocoapoco.service.sse.UserSseKey;
@@ -23,6 +24,7 @@ import teamproject.pocoapoco.service.sse.UserSseKey;
 import java.util.List;
 
 import static teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum.*;
+import static teamproject.pocoapoco.service.sse.dto.AlarmTypeEnum.*;
 
 @Service
 @Slf4j
@@ -34,11 +36,7 @@ public class LikeViewService {
     private final AlarmRepository alarmRepository;
     private final SseSender sseSender;
 
-    public LikeViewService(final LikeRepository likeRepository,
-                           final CrewRepository crewRepository,
-                           final UserRepository userRepository,
-                           final AlarmRepository alarmRepository,
-                           final SseSender sseSender) {
+    public LikeViewService(final LikeRepository likeRepository, final CrewRepository crewRepository, final UserRepository userRepository, final AlarmRepository alarmRepository, final SseSender sseSender) {
         this.likeRepository = likeRepository;
         this.crewRepository = crewRepository;
         this.userRepository = userRepository;
@@ -86,6 +84,7 @@ public class LikeViewService {
                         .fromUser(user.getNickName())
                         .targetUser(crew.getTitle())
                         .message(LIKE)
+                        .alarmTypeEnum(ALARM)
                         .build()
         );
     }

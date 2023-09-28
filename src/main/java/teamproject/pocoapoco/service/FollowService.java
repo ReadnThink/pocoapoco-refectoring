@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum.*;
+import static teamproject.pocoapoco.service.sse.dto.AlarmTypeEnum.ALARM;
 
 @Service
 @Transactional
@@ -32,10 +33,7 @@ public class FollowService {
     private final AlarmRepository alarmRepository;
     private final SseSender sseSender;
 
-    public FollowService(final UserRepository userRepository,
-                         final FollowRepository followRepository,
-                         final AlarmRepository alarmRepository,
-                         final SseSender sseSender) {
+    public FollowService(final UserRepository userRepository, final FollowRepository followRepository, final AlarmRepository alarmRepository, final SseSender sseSender) {
         this.userRepository = userRepository;
         this.followRepository = followRepository;
         this.alarmRepository = alarmRepository;
@@ -84,8 +82,9 @@ public class FollowService {
                         .userSseKey(user.getUsername())
                         .build(),
                 SseAlarmData.builder()
-                        .targetUser(followingUser.getNickName())
+                        .fromUser(followingUser.getNickName())
                         .message(FOLLOW)
+                        .alarmTypeEnum(ALARM)
                         .build()
         );
     }

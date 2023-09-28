@@ -14,6 +14,7 @@ import teamproject.pocoapoco.exception.ErrorCode;
 import teamproject.pocoapoco.repository.AlarmRepository;
 import teamproject.pocoapoco.repository.CommentRepository;
 import teamproject.pocoapoco.repository.UserRepository;
+import teamproject.pocoapoco.service.sse.dto.AlarmTypeEnum;
 import teamproject.pocoapoco.service.sse.dto.SseAlarmData;
 import teamproject.pocoapoco.service.sse.SseSender;
 import teamproject.pocoapoco.service.sse.UserSseKey;
@@ -21,6 +22,7 @@ import teamproject.pocoapoco.service.sse.UserSseKey;
 import java.util.List;
 
 import static teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum.ADD_COMMENT_TO_COMMENT;
+import static teamproject.pocoapoco.service.sse.dto.AlarmTypeEnum.*;
 
 @Service
 @Transactional
@@ -31,10 +33,7 @@ public class CommentViewService {
     private final AlarmRepository alarmRepository;
     private final SseSender sseSender;
 
-    public CommentViewService(final CommentRepository commentRepository,
-                              final UserRepository userRepository,
-                              final AlarmRepository alarmRepository,
-                              final SseSender sseSender) {
+    public CommentViewService(final CommentRepository commentRepository, final UserRepository userRepository, final AlarmRepository alarmRepository, final SseSender sseSender) {
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
         this.alarmRepository = alarmRepository;
@@ -77,6 +76,7 @@ public class CommentViewService {
                         .fromUser(user.getNickName())
                         .targetUser(parentComment.getComment())
                         .message(ADD_COMMENT_TO_COMMENT)
+                        .alarmTypeEnum(ALARM)
                         .build()
         );
     }

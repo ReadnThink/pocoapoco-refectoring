@@ -17,6 +17,7 @@ import teamproject.pocoapoco.repository.CrewRepository;
 import teamproject.pocoapoco.repository.CrewReviewRepository;
 import teamproject.pocoapoco.repository.UserRepository;
 import teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum;
+import teamproject.pocoapoco.service.sse.dto.AlarmTypeEnum;
 import teamproject.pocoapoco.service.sse.dto.SseAlarmData;
 import teamproject.pocoapoco.service.sse.SseSender;
 import teamproject.pocoapoco.service.sse.UserSseKey;
@@ -25,6 +26,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 import static teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum.*;
+import static teamproject.pocoapoco.service.sse.dto.AlarmTypeEnum.*;
 
 @Service
 @Transactional
@@ -36,11 +38,7 @@ public class CrewReviewService {
     private final AlarmRepository alarmRepository;
     private final SseSender sseSender;
 
-    public CrewReviewService(final UserRepository userRepository,
-                             final CrewRepository crewRepository,
-                             final CrewReviewRepository crewReviewRepository,
-                             final AlarmRepository alarmRepository,
-                             final SseSender sseSender) {
+    public CrewReviewService(final UserRepository userRepository, final CrewRepository crewRepository, final CrewReviewRepository crewReviewRepository, final AlarmRepository alarmRepository, final SseSender sseSender) {
         this.userRepository = userRepository;
         this.crewRepository = crewRepository;
         this.crewReviewRepository = crewReviewRepository;
@@ -82,6 +80,7 @@ public class CrewReviewService {
                 ,
                 SseAlarmData.builder()
                         .message(CHECK_REVIEW)
+                        .alarmTypeEnum(ALARM)
                         .build()
         );
     }

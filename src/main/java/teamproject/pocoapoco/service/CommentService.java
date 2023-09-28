@@ -18,6 +18,7 @@ import teamproject.pocoapoco.repository.CommentRepository;
 import teamproject.pocoapoco.repository.CrewRepository;
 import teamproject.pocoapoco.repository.UserRepository;
 import teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum;
+import teamproject.pocoapoco.service.sse.dto.AlarmTypeEnum;
 import teamproject.pocoapoco.service.sse.dto.SseAlarmData;
 import teamproject.pocoapoco.service.sse.SseSender;
 import teamproject.pocoapoco.service.sse.UserSseKey;
@@ -26,6 +27,7 @@ import java.time.LocalDateTime;
 
 import static teamproject.pocoapoco.enums.AlarmType.ADD_COMMENT;
 import static teamproject.pocoapoco.service.sse.dto.AlarmMessagesEnum.ADD_COMMENT_TO_ACTIVITY;
+import static teamproject.pocoapoco.service.sse.dto.AlarmTypeEnum.*;
 
 @Service
 @Transactional
@@ -37,11 +39,7 @@ public class CommentService {
     private final AlarmRepository alarmRepository;
     private final SseSender sseSender;
 
-    public CommentService(final CommentRepository commentRepository,
-                          final UserRepository userRepository,
-                          final CrewRepository crewRepository,
-                          final AlarmRepository alarmRepository,
-                          final SseSender sseSender) {
+    public CommentService(final CommentRepository commentRepository, final UserRepository userRepository, final CrewRepository crewRepository, final AlarmRepository alarmRepository, final SseSender sseSender) {
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
         this.crewRepository = crewRepository;
@@ -78,6 +76,7 @@ public class CommentService {
                         .fromUser(user.getNickName())
                         .targetUser(crew.getTitle())
                         .message(ADD_COMMENT_TO_ACTIVITY)
+                        .alarmTypeEnum(ALARM)
                         .build()
         );
     }

@@ -4,15 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Where;
 import teamproject.pocoapoco.domain.dto.crew.CrewRequest;
 import teamproject.pocoapoco.domain.entity.chat.ChatRoom;
 import teamproject.pocoapoco.domain.entity.part.Participation;
 import teamproject.pocoapoco.enums.SportEnum;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -73,5 +74,27 @@ public class Crew extends BaseEntity{
         this.title = request.getTitle();
         this.content = request.getContent();
         this.crewLimit = request.getCrewLimit();
+    }
+
+    public static Crew makeRandomMatchingCrew(List<User> users, String sport, int crewLimit){
+        return Crew.builder()
+                .imagePath("67id36j0-디폴트.jpg")
+                .strict("청진동 246 D1동 16층, 17층 ")
+                .roadName("서울 종로구 종로3길 17 D1동 16층, 17층")
+                .title(sport + "실시간 매칭🔥")
+                .content(users.stream()
+                        .map(User::getUsername)
+                        .collect(Collectors.joining("님, ", "", "님\n"))
+                        + "실시간 매칭이 성사되었습니다 \n" +
+                        "채팅방에서 시간 장소를 조율해주세요")
+                .crewLimit(crewLimit)
+                .datepick(LocalDateTime.now().toString())
+                .timepick(LocalDateTime.now().toString())
+                .chatRoom(ChatRoom.builder()
+                        .name(sport + "실시간 매칭")
+                        .user(users.get(0)) //user에 참여자중 한명 넣으면 된다.. name = 타이틀이름
+                        .build())
+                .user(users.get(0))  // crew 만들사람
+                .build();
     }
 }
