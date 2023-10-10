@@ -15,16 +15,26 @@
 
 ## Refectoring 포인트
 
-실시간 매칭
+### 실시간 매칭
+[실시간 매칭 핵심 코드 리펙토링 -> LiveMatchServive가 핵심로직입니다.](https://github.com/ReadnThink/pocoapoco-refectoring/pull/5)
 
 - 리펙토링으로 코드량을 줄이고 클린 코드를 적용하여 가독성 증가
     - **약 50% 감소 (268줄 → 137줄)**
+      
+<img src="https://github.com/ReadnThink/pocoapoco-refectoring/assets/103480627/c63daf0d-1648-4d8d-a030-66ea04ecd4be" width="1000" height="600"/>
 
-실시간 알림
+ 
+### 실시간 알림
 
-- 중복되는 SSE 로직을 개선하였습니다.
-Static → Strategy Pattern → Bean 으로 리펙토링 하엿습니다.
-중복을 줄이고 하드코딩을 Enum으로 변경하여 코드의 가독성을 높였습니다.
+[refector : SSE알림 Static 전환하여 재사용](https://github.com/ReadnThink/pocoapoco-refectoring/pull/1) <br/>
+[refector : SSE static -> Strategy Pattern](https://github.com/ReadnThink/pocoapoco-refectoring/pull/2) <br/>
+[refector : Sse Strategy pattern -> Bean으로 관리](https://github.com/ReadnThink/pocoapoco-refectoring/pull/4) <br/>
+
+- 중복되는 SSE 로직을 개선 <br/>
+Static → Strategy Pattern → Bean 으로 리펙토링 <br/>
+중복을 줄이고 하드코딩을 Enum으로 변경하여 코드의 가독성 증가 <br/>
+
+<img src="https://github.com/ReadnThink/pocoapoco-refectoring/assets/103480627/c1feb97a-cbdd-446a-8194-12b8eebe695c" width="1000" height="600"/>
 
 
 # 오늘부터 운동메💪
