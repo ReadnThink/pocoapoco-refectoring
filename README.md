@@ -21,7 +21,7 @@
 - 리펙토링으로 코드량을 줄이고 클린 코드를 적용하여 가독성 증가
     - **약 50% 감소 (268줄 → 137줄)**
       
-<img src="https://github.com/ReadnThink/pocoapoco-refectoring/assets/103480627/c63daf0d-1648-4d8d-a030-66ea04ecd4be" width="1000" height="600"/>
+<img src="https://github.com/ReadnThink/pocoapoco-refectoring/assets/103480627/c63daf0d-1648-4d8d-a030-66ea04ecd4be" width="1000" height="500"/>
 
  
 ### 실시간 알림
@@ -34,7 +34,7 @@
 Static → Strategy Pattern → Bean 으로 리펙토링 <br/>
 중복을 줄이고 하드코딩을 Enum으로 변경하여 코드의 가독성 증가 <br/>
 
-<img src="https://github.com/ReadnThink/pocoapoco-refectoring/assets/103480627/c1feb97a-cbdd-446a-8194-12b8eebe695c" width="1000" height="600"/>
+<img src="https://github.com/ReadnThink/pocoapoco-refectoring/assets/103480627/c1feb97a-cbdd-446a-8194-12b8eebe695c" width="1000" height="500"/>
 
 
 # 오늘부터 운동메💪
