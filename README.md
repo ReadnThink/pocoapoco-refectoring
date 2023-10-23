@@ -23,6 +23,13 @@
       
 <img src="https://github.com/ReadnThink/pocoapoco-refectoring/assets/103480627/c63daf0d-1648-4d8d-a030-66ea04ecd4be" width="1000" height="500"/>
 
+#### 실시간 매칭 Flow
+![image](https://github.com/ReadnThink/pocoapoco-refectoring/assets/103480627/a90e9046-22fd-4be0-9784-9f5fd269a9eb)
+
+#### SortedSet 사용 이유
+![image](https://github.com/ReadnThink/pocoapoco-refectoring/assets/103480627/fb1c9463-2ec5-486a-b00c-6d043fa2d411)
+
+
  
 ### 실시간 알림
 
@@ -35,6 +42,9 @@ Static → Strategy Pattern → Bean 으로 리펙토링 <br/>
 중복을 줄이고 하드코딩을 Enum으로 변경하여 코드의 가독성 증가 <br/>
 
 <img src="https://github.com/ReadnThink/pocoapoco-refectoring/assets/103480627/c1feb97a-cbdd-446a-8194-12b8eebe695c" width="1000" height="500"/>
+
+SSE 사용 이유
+![image](https://github.com/ReadnThink/pocoapoco-refectoring/assets/103480627/ae7eb811-0f6c-43ac-9459-11e8f655517e)
 
 
 # 오늘부터 운동메💪
